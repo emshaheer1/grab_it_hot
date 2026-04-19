@@ -236,6 +236,177 @@ textarea.form-input { resize: vertical; min-height: 120px; line-height: 1.6; }
   background: rgba(255,59,47,0.1) !important;
 }
 
+/* Farhan promo modal (marketing) */
+.farhan-promo {
+  position: fixed;
+  inset: 0;
+  z-index: 10040;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(16px, 3vw);
+}
+
+.farhan-promo__backdrop {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  cursor: pointer;
+}
+
+.farhan-promo__dialog {
+  position: relative;
+  z-index: 1;
+  width: min(880px, 100%);
+  max-height: min(540px, 88vh);
+  overflow: auto;
+  border-radius: var(--r-xl);
+  background: var(--white);
+  box-shadow: var(--shadow-xl), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  animation: farhanPromoIn 0.48s var(--ease-out) both;
+}
+
+@keyframes farhanPromoIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.farhan-promo__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: var(--shadow-sm);
+  color: var(--ink);
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.15s var(--ease-out);
+}
+
+.farhan-promo__close:hover {
+  background: var(--white);
+  color: var(--flame);
+}
+
+.farhan-promo__close:active {
+  transform: scale(0.96);
+}
+
+.farhan-promo__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+  gap: 0;
+  align-items: stretch;
+}
+
+.farhan-promo__visual {
+  background: var(--ink);
+  min-height: 260px;
+}
+
+.farhan-promo__poster {
+  width: 100%;
+  height: 100%;
+  min-height: 260px;
+  object-fit: cover;
+  display: block;
+}
+
+.farhan-promo__content {
+  padding: clamp(26px, 4vw, 42px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.farhan-promo__eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--flame);
+  margin-bottom: 12px;
+}
+
+.farhan-promo__title {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3.8vw, 29px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  line-height: 1.15;
+  margin-bottom: 10px;
+}
+
+.farhan-promo__meta {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.farhan-promo__lead {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.farhan-promo__copy {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-muted);
+  margin-bottom: 22px;
+}
+
+.farhan-promo__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.farhan-promo__cta {
+  padding: 14px 26px !important;
+}
+
+@media (max-width: 720px) {
+  .farhan-promo__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .farhan-promo__visual {
+    max-height: 240px;
+    min-height: 180px;
+  }
+
+  .farhan-promo__poster {
+    min-height: 180px;
+    max-height: 240px;
+  }
+
+  .farhan-promo__dialog {
+    max-height: 92vh;
+  }
+}
+
 /* Home page motion */
 .hero-stats-wrap {
   animation: floatUp 0.8s var(--ease-out) both;

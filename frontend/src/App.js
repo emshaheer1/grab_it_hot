@@ -8,6 +8,7 @@ import RequestTicketsPage from './pages/RequestTicketsPage';
 import AdminRoute from './components/AdminRoute';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminLoginPage from './pages/AdminLoginPage';
+import FarhanPromoModal from './components/FarhanPromoModal';
 
 function LegacyEventsListRedirect() {
   return <Navigate to={{ pathname: '/', hash: 'featured-events' }} replace />;
@@ -54,6 +55,7 @@ function AppRoutes() {
         </Routes>
       </main>
       {showSiteChrome && <Footer />}
+      {showSiteChrome && <FarhanPromoModal />}
     </>
   );
 }
