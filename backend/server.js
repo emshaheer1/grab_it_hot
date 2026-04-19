@@ -36,6 +36,15 @@ app.use(
 app.use(express.json());
 app.use('/uploads', express.static(uploadsDir));
 
+// Helpful when someone opens the service root in a browser (no more empty 404)
+app.get('/', (req, res) => {
+  res.json({
+    ok: true,
+    service: 'Grab It Hot API',
+    health: '/api/health',
+  });
+});
+
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/events', require('./routes/events'));
