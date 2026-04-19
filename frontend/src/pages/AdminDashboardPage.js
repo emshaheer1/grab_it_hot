@@ -9,6 +9,7 @@ import {
   formatEventSchedule,
   eventDateToDatetimeLocalValue,
   datetimeLocalValueToEventIso,
+  resolveEventImageUrl,
 } from '../utils/helpers';
 import {
   FaArrowRightFromBracket,
@@ -511,7 +512,7 @@ const AdminDashboardPage = () => {
                 {events.slice(0, 8).map((event) => (
                   <div key={event._id} style={{ display: 'flex', gap: 12, border: '1px solid var(--border-light)', borderRadius: 10, padding: 10, alignItems: 'center' }}>
                     <img
-                      src={event.image}
+                      src={resolveEventImageUrl(event.image)}
                       alt=""
                       style={{ width: 52, height: 52, borderRadius: 8, objectFit: 'cover', flexShrink: 0, border: '1px solid var(--border-light)' }}
                       onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=200'; }}
@@ -627,7 +628,7 @@ const AdminDashboardPage = () => {
                   <React.Fragment key={event._id}>
                     <tr style={{ borderBottom: '1px solid var(--border-light)' }}>
                       <td style={{ padding: '10px 8px' }}>
-                        <img src={event.image} alt="" style={{ width: 44, height: 44, borderRadius: 8, objectFit: 'cover' }} onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=200'; }} />
+                        <img src={resolveEventImageUrl(event.image)} alt="" style={{ width: 44, height: 44, borderRadius: 8, objectFit: 'cover' }} onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=200'; }} />
                       </td>
                       <td style={{ padding: '10px 8px', fontWeight: 600 }}>{event.title}</td>
                       <td style={{ padding: '10px 8px' }}>{event.category}</td>

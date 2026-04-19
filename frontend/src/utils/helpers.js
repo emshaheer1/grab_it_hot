@@ -90,6 +90,17 @@ export const datetimeLocalValueToEventIso = (str) => {
 export const formatCurrency = (amount) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(amount);
 
+/** Event `image` values are `/uploads/...` on the API host. On Vercel they must use the API origin or the browser loads the wrong host / a placeholder. */
+export function resolveEventImageUrl(src) {
+  if (src == null || src === '') return '';
+  const s = String(src).trim();
+  if (/^https?:\/\//i.test(s)) return s;
+  const apiUrl = process.env.REACT_APP_API_URL || '';
+  const origin = apiUrl.replace(/\/api\/?$/i, '').replace(/\/+$/, '');
+  if (origin && s.startsWith('/')) return `${origin}${s}`;
+  return s;
+}
+
 export const getStatusBadgeClass = (status) => {
   switch (status) {
     case 'confirmed': return 'badge-green';

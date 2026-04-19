@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
-import { formatEventScheduleDate, formatCurrency } from '../utils/helpers';
+import { formatEventScheduleDate, formatCurrency, resolveEventImageUrl } from '../utils/helpers';
 import { toast } from 'react-toastify';
 import { FaCalendarDays, FaTicket } from 'react-icons/fa6';
 
@@ -138,7 +138,7 @@ const ProfilePage = () => {
                     onMouseEnter={e => e.currentTarget.style.background = 'var(--cloud)'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                     {b.event?.image && (
-                      <img src={b.event.image} alt="" style={{ width: 64, height: 52, borderRadius: 10, objectFit: 'cover', flexShrink: 0 }} onError={e => e.target.style.display = 'none'} />
+                      <img src={resolveEventImageUrl(b.event.image)} alt="" style={{ width: 64, height: 52, borderRadius: 10, objectFit: 'cover', flexShrink: 0 }} onError={e => e.target.style.display = 'none'} />
                     )}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 16, marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

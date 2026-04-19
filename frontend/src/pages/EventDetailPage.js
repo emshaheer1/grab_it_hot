@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
-import { formatEventSchedule, formatCurrency, getCategoryIcon } from '../utils/helpers';
+import { formatEventSchedule, formatCurrency, getCategoryIcon, resolveEventImageUrl } from '../utils/helpers';
 import {
   FaCalendarDays,
   FaLocationDot,
@@ -93,7 +93,7 @@ const EventDetailPage = () => {
               }}
             >
               <img
-                src={event.image}
+                src={resolveEventImageUrl(event.image)}
                 alt=""
                 style={{
                   display: 'block',

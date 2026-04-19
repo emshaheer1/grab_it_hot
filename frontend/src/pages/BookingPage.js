@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
-import { formatEventSchedule, formatCurrency } from '../utils/helpers';
+import { formatEventSchedule, formatCurrency, resolveEventImageUrl } from '../utils/helpers';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { FaCalendarDays, FaLocationDot, FaLock } from 'react-icons/fa6';
@@ -202,7 +202,7 @@ const BookingPage = () => {
               {/* Event summary */}
               <div style={{ background: 'var(--smoke)', borderRadius: 'var(--r-lg)', overflow: 'hidden', marginBottom: 28 }}>
                 <div style={{ display: 'flex', gap: 16, padding: '20px 22px', alignItems: 'center' }}>
-                  <img src={event.image} alt="" style={{ width: 80, height: 64, borderRadius: 12, objectFit: 'cover', flexShrink: 0 }} onError={e => e.target.style.display = 'none'} />
+                  <img src={resolveEventImageUrl(event.image)} alt="" style={{ width: 80, height: 64, borderRadius: 12, objectFit: 'cover', flexShrink: 0 }} onError={e => e.target.style.display = 'none'} />
                   <div>
                     <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 17, marginBottom: 4 }}>{event.title}</div>
                     <div style={{ fontSize: 13, color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: 6 }}><FaCalendarDays /> {formatEventSchedule(event)}</div>
