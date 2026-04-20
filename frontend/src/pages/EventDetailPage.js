@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
-import { formatEventSchedule, formatCurrency, getCategoryIcon, resolveEventImageUrl } from '../utils/helpers';
+import FarhanZellePricePair from '../components/FarhanZellePricePair';
+import { formatEventSchedule, formatCurrency, getCategoryIcon, isFarhanEvent, resolveEventImageUrl } from '../utils/helpers';
 import {
   FaCalendarDays,
   FaLocationDot,
@@ -241,7 +242,15 @@ const EventDetailPage = () => {
                         </div>
                       </div>
                       <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 22, color: 'var(--ink)', flexShrink: 0, paddingLeft: 12 }}>
-                        {formatCurrency(t.price)}
+                        {isFarhanEvent(event) ? (
+                          <FarhanZellePricePair
+                            listPrice={t.price}
+                            strikeStyle={{ fontSize: '0.85em', fontWeight: 700 }}
+                            currentStyle={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 22, color: 'var(--ink)' }}
+                          />
+                        ) : (
+                          formatCurrency(t.price)
+                        )}
                       </div>
                     </div>
                   );
@@ -276,7 +285,17 @@ const EventDetailPage = () => {
               {tier && (
                 <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid var(--smoke-mid)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>Starting from</span>
-                  <span style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 24, color: 'var(--flame)' }}>{formatCurrency(tier.price)}</span>
+                  <span style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 24, color: 'var(--flame)' }}>
+                    {isFarhanEvent(event) ? (
+                      <FarhanZellePricePair
+                        listPrice={tier.price}
+                        strikeStyle={{ fontSize: '0.82em', fontWeight: 700, color: 'var(--text-muted)' }}
+                        currentStyle={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 24, color: 'var(--flame)' }}
+                      />
+                    ) : (
+                      formatCurrency(tier.price)
+                    )}
+                  </span>
                 </div>
               )}
             </div>

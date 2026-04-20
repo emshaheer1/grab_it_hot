@@ -90,6 +90,19 @@ export const datetimeLocalValueToEventIso = (str) => {
 export const formatCurrency = (amount) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(amount);
 
+/** Farhan show: Zelle request flow uses this per-ticket discount (matches RequestTickets / marketing). */
+export const FARHAN_ZELLE_DISCOUNT_PER_TICKET = 10;
+
+export function isFarhanEvent(ev) {
+  return Boolean(ev && /farhan/i.test(String(ev.title || '')));
+}
+
+export function farhanZelleUnitPrice(listPrice) {
+  const n = Number(listPrice);
+  if (Number.isNaN(n)) return 0;
+  return Math.max(0, n - FARHAN_ZELLE_DISCOUNT_PER_TICKET);
+}
+
 /** Event `image` values are `/uploads/...` on the API host. On Vercel they must use the API origin or the browser loads the wrong host / a placeholder. */
 export function resolveEventImageUrl(src) {
   if (src == null || src === '') return '';

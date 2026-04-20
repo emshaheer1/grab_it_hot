@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
-import { formatEventSchedule, formatCurrency, resolveEventImageUrl } from '../utils/helpers';
+import FarhanZellePricePair from '../components/FarhanZellePricePair';
+import { formatEventSchedule, formatCurrency, isFarhanEvent, resolveEventImageUrl } from '../utils/helpers';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { FaCalendarDays, FaLocationDot, FaLock } from 'react-icons/fa6';
@@ -121,7 +122,17 @@ const BookingPage = () => {
                         </div>
                       </div>
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 26, color: 'var(--ink)' }}>{formatCurrency(t.price)}</div>
+                        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 26, color: 'var(--ink)', justifyContent: 'flex-end', display: 'flex' }}>
+                          {isFarhanEvent(event) ? (
+                            <FarhanZellePricePair
+                              listPrice={t.price}
+                              strikeStyle={{ fontSize: '0.8em', fontWeight: 700 }}
+                              currentStyle={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 26, color: 'var(--ink)' }}
+                            />
+                          ) : (
+                            formatCurrency(t.price)
+                          )}
+                        </div>
                         <div style={{ fontSize: 12, color: 'var(--text-ghost)' }}>per ticket</div>
                       </div>
                     </div>
