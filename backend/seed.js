@@ -67,9 +67,7 @@ const events = [
     },
     image: '/uploads/farhan-live-chicago-poster.png',
     ticketTiers: [
-      { name: 'General Admission', price: 55, capacity: 400, description: 'Standing / general floor' },
-      { name: 'Premium', price: 85, capacity: 200, description: 'Preferred viewing area' },
-      { name: 'VIP', price: 145, capacity: 80, description: 'VIP experience — details at the door' },
+      { name: 'Regular Ticket', price: 50, capacity: 400, description: 'General admission — NUR LOFT' },
     ],
     featured: true,
     status: 'upcoming',
@@ -154,14 +152,21 @@ async function upsertDemoEvents() {
   let created = 0;
   let updated = 0;
   for (const ev of events) {
-    const existing = await Event.findOne({ title: ev.title });
-    await Event.findOneAndUpdate(
-      { title: ev.title },
-      { $set: ev },
-      { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true }
-    );
-    if (existing) updated += 1;
-    else created += 1;
+    const existing = await Event.findOne({ title: ev.title }).lean();
+    const replacement = { ...ev };
+    if (existing) {
+      replacement._id = existing._id;
+      replacement.createdAt = existing.createdAt;
+      updated += 1;
+    } else {
+      created += 1;
+    }
+    // Full document replace so nested `ticketTiers` (e.g. Farhan → one Regular $50) is not merged with stale tiers
+    await Event.findOneAndReplace({ title: ev.title }, replacement, {
+      upsert: true,
+      runValidators: true,
+      setDefaultsOnInsert: true,
+    });
   }
   console.log(`Events: ${created} inserted, ${updated} updated (matched by title).`);
 }

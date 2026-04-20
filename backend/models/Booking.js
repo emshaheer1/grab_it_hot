@@ -1,9 +1,17 @@
 const mongoose = require('mongoose');
-const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto');
+
+function shortBookingId() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const buf = crypto.randomBytes(5);
+  let s = '';
+  for (let i = 0; i < 5; i += 1) s += chars[buf[i] % chars.length];
+  return `GIH-${s}`;
+}
 
 const BookingSchema = new mongoose.Schema(
   {
-    bookingId: { type: String, default: () => 'GIH-' + uuidv4().slice(0, 8).toUpperCase(), unique: true },
+    bookingId: { type: String, default: shortBookingId, unique: true },
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     event: { type: mongoose.Schema.Types.ObjectId, ref: 'Event', required: true },
     ticketTier: {

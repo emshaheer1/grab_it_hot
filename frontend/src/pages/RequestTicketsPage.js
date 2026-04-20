@@ -7,12 +7,19 @@ import { FaCalendarDays, FaLocationDot, FaTicket } from 'react-icons/fa6';
 
 const ZELLE_EMAIL = 'Payment@melodysounds.net';
 
+/** Farhan show: $10 off each ticket on Zelle request flow only (no service fee). */
+const FARHAN_ZELLE_DISCOUNT_PER_TICKET = 10;
+
+function isFarhanEvent(ev) {
+  return Boolean(ev && /farhan/i.test(String(ev.title || '')));
+}
+
 function makeOrderId() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const buf = new Uint8Array(10);
+  const buf = new Uint8Array(6);
   crypto.getRandomValues(buf);
   let suffix = '';
-  for (let i = 0; i < 10; i += 1) suffix += chars[buf[i] % chars.length];
+  for (let i = 0; i < 6; i += 1) suffix += chars[buf[i] % chars.length];
   return `GH-${suffix}`;
 }
 
@@ -68,7 +75,14 @@ const RequestTicketsPage = () => {
     }
     setSubmitting(true);
     try {
-      const notesForAdmin = `Order ID: ${orderId}\nZelle payee: ${ZELLE_EMAIL}`;
+      const tierNow = event.ticketTiers?.find((t) => t._id === tierId);
+      const listTotal = tierNow ? tierNow.price * quantity : 0;
+      const zelleDue = isFarhanEvent(event) && tierNow
+        ? Math.max(0, tierNow.price - FARHAN_ZELLE_DISCOUNT_PER_TICKET) * quantity
+        : listTotal;
+      const notesForAdmin = isFarhanEvent(event)
+        ? `Order ID: ${orderId}\nZelle payee: ${ZELLE_EMAIL}\nZelle amount due: ${formatCurrency(zelleDue)}\nList: ${formatCurrency(listTotal)} — $10/ticket discount, no service fee (Farhan only)`
+        : `Order ID: ${orderId}\nZelle payee: ${ZELLE_EMAIL}\nEstimated total: ${formatCurrency(listTotal)}`;
       await api.post('/ticket-requests', {
         fullName: fullName.trim(),
         email: email.trim(),
@@ -211,10 +225,29 @@ const RequestTicketsPage = () => {
             ) : null}
           </div>
           {tier && (
-            <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 20 }}>
-              <FaTicket style={{ verticalAlign: 'middle', marginRight: 6 }} />
-              Estimated total: <strong>{formatCurrency(tier.price * quantity)}</strong> (before any discounts)
-            </p>
+            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 20, lineHeight: 1.6 }}>
+              <p style={{ margin: '0 0 10px' }}>
+                <FaTicket style={{ verticalAlign: 'middle', marginRight: 6 }} />
+                Ticket subtotal: <strong>{formatCurrency(tier.price * quantity)}</strong>
+                {isFarhanEvent(event) ? ` (${formatCurrency(tier.price)} × ${quantity})` : null}
+              </p>
+              {isFarhanEvent(event) ? (
+                <>
+                  <p style={{ margin: '0 0 8px', fontSize: 13, color: 'var(--text-muted)' }}>
+                    <strong style={{ color: 'var(--flame)' }}>$10 discount — no service fee</strong>
+                    {' '}· applies to this Farhan event only
+                  </p>
+                  <p style={{ margin: 0, fontSize: 16, color: 'var(--ink)', fontWeight: 700 }}>
+                    Zelle amount due:{' '}
+                    {formatCurrency(Math.max(0, tier.price - FARHAN_ZELLE_DISCOUNT_PER_TICKET) * quantity)}
+                  </p>
+                </>
+              ) : (
+                <p style={{ margin: 0 }}>
+                  Estimated total: <strong>{formatCurrency(tier.price * quantity)}</strong> (before any discounts)
+                </p>
+              )}
+            </div>
           )}
           <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }} disabled={submitting}>
             {submitting ? 'Submitting…' : 'Submit request'}
