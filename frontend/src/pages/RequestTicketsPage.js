@@ -465,36 +465,37 @@ const RequestTicketsPage = () => {
                     <path pathLength="1" d="M6.5 12.5 L10.5 16.5 L18 8.5" fill="none" />
                   </svg>
                 </div>
-                <h2
-                  id="payment-success-heading"
-                  className="anim-up"
-                  style={{
-                    margin: '0 0 16px',
-                    fontFamily: 'var(--font-display)',
-                    fontWeight: 900,
-                    fontSize: 28,
-                    color: 'var(--ink)',
-                    letterSpacing: '-0.02em',
-                  }}
-                >
-                  Thank you!
-                </h2>
-                <p
-                  className="anim-up d1"
-                  style={{
-                    margin: '0 auto 20px',
-                    maxWidth: 400,
-                    fontSize: 15,
-                    lineHeight: 1.65,
-                    color: 'var(--text-secondary)',
-                    textAlign: 'left',
-                  }}
-                >
-                  We have received your request. We will verify your payment using your order ID{' '}
-                  <strong style={{ color: 'var(--ink)' }}>{pendingOrderId}</strong>. After verification, your tickets
-                  will be sent to <strong style={{ color: 'var(--ink)' }}>{email.trim() || 'your email'}</strong>, the
-                  email address you provided on this form (such as your Gmail inbox).
-                </p>
+                <div style={{ maxWidth: 420, margin: '0 auto' }}>
+                  <h2
+                    id="payment-success-heading"
+                    className="anim-up"
+                    style={{
+                      margin: '0 0 16px',
+                      fontFamily: 'var(--font-display)',
+                      fontWeight: 900,
+                      fontSize: 28,
+                      color: 'var(--ink)',
+                      letterSpacing: '-0.02em',
+                      textAlign: 'center',
+                    }}
+                  >
+                    Thank you
+                  </h2>
+                  <p
+                    className="anim-up d1"
+                    style={{
+                      margin: '0 0 24px',
+                      fontSize: 15,
+                      lineHeight: 1.65,
+                      color: 'var(--text-secondary)',
+                      textAlign: 'center',
+                    }}
+                  >
+                    We have received your request. We will verify your payment using your order ID{' '}
+                    <strong style={{ color: 'var(--ink)' }}>{pendingOrderId}</strong>. After verification, your tickets
+                    will be sent to <strong style={{ color: 'var(--ink)' }}>{email.trim() || 'your email'}</strong>.
+                  </p>
+                </div>
                 <button
                   type="button"
                   className="btn btn-primary anim-up d2"
@@ -503,7 +504,17 @@ const RequestTicketsPage = () => {
                 >
                   Return to event
                 </button>
-                <p className="anim-up d3" style={{ margin: 0, fontSize: 12, color: 'var(--text-muted)' }}>
+                <p
+                  className="anim-up d3"
+                  style={{
+                    margin: '0 auto',
+                    maxWidth: 360,
+                    fontSize: 12,
+                    color: 'var(--text-muted)',
+                    lineHeight: 1.5,
+                    textAlign: 'center',
+                  }}
+                >
                   This window will close automatically in about{' '}
                   {Math.round(SUCCESS_MODAL_AUTO_CLOSE_MS / 1000)} seconds.
                 </p>
