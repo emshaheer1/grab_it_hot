@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import FarhanZellePricePair from '../components/FarhanZellePricePair';
-import { formatEventSchedule, formatCurrency, isFarhanEvent, resolveEventImageUrl } from '../utils/helpers';
+import { formatEventSchedule, formatCurrency, formatEventLocationOneLine, isFarhanEvent, resolveEventImageUrl } from '../utils/helpers';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { FaCalendarDays, FaLocationDot, FaLock } from 'react-icons/fa6';
@@ -72,7 +72,7 @@ const BookingPage = () => {
         <div className="container">
           <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: 10 }}>Booking</div>
           <h1 style={{ fontFamily: 'var(--font-display)', color: 'white', fontSize: 'clamp(22px,4vw,40px)', fontWeight: 900, marginBottom: 6 }}>{event?.title}</h1>
-          {event && <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 14, display: 'inline-flex', gap: 12, flexWrap: 'wrap' }}><span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><FaCalendarDays /> {formatEventSchedule(event)}</span><span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><FaLocationDot /> {event.location?.city}, {event.location?.state}</span></p>}
+          {event && <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 14, display: 'inline-flex', gap: 12, flexWrap: 'wrap' }}><span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><FaCalendarDays /> {formatEventSchedule(event)}</span><span style={{ display: 'inline-flex', alignItems: 'flex-start', gap: 6, maxWidth: 'min(100%, 520px)' }}><FaLocationDot style={{ flexShrink: 0, marginTop: 2 }} /> {formatEventLocationOneLine(event.location) || `${event.location?.city}, ${event.location?.state}`}</span></p>}
         </div>
       </div>
 
@@ -217,7 +217,7 @@ const BookingPage = () => {
                   <div>
                     <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 17, marginBottom: 4 }}>{event.title}</div>
                     <div style={{ fontSize: 13, color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: 6 }}><FaCalendarDays /> {formatEventSchedule(event)}</div>
-                    <div style={{ fontSize: 13, color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: 6 }}><FaLocationDot /> {event.location?.city}, {event.location?.state}</div>
+                    <div style={{ fontSize: 13, color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'flex-start', gap: 6, maxWidth: 480 }}><FaLocationDot style={{ flexShrink: 0, marginTop: 2 }} /> {formatEventLocationOneLine(event.location) || `${event.location?.city}, ${event.location?.state}`}</div>
                   </div>
                 </div>
                 <div style={{ borderTop: '1px solid var(--smoke-deep)', padding: '18px 22px' }}>

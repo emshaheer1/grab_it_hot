@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { formatCurrency, formatEventScheduleDate, getCategoryIcon, getEventMonthDayParts, isFarhanEvent, resolveEventImageUrl } from '../utils/helpers';
+import { formatCurrency, formatEventLocationOneLine, formatEventScheduleDate, getCategoryIcon, getEventMonthDayParts, isFarhanEvent, resolveEventImageUrl } from '../utils/helpers';
 import FarhanZellePricePair from './FarhanZellePricePair';
 import { FaCalendarDays, FaLocationDot } from 'react-icons/fa6';
 
@@ -35,7 +35,10 @@ const EventCard = ({ event, style }) => {
           </div>
           <div className="event-card__meta-row">
             <FaLocationDot />
-            <span>{event.location?.venue}, {event.location?.city}</span>
+            <span>
+              {formatEventLocationOneLine(event.location) ||
+                [event.location?.venue, event.location?.city].filter(Boolean).join(', ')}
+            </span>
           </div>
         </div>
         <div className="event-card__footer">

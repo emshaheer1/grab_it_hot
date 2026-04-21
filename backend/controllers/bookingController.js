@@ -1,6 +1,7 @@
 const Booking = require('../models/Booking');
 const Event = require('../models/Event');
 const User = require('../models/User');
+const { formatEventLocationOneLine } = require('../utils/formatEventLocationOneLine');
 const nodemailer = require('nodemailer');
 
 const sendConfirmationEmail = async (booking, event) => {
@@ -23,7 +24,7 @@ const sendConfirmationEmail = async (booking, event) => {
             <tr><td style="padding:8px;background:#f7f7f7"><strong>Booking ID</strong></td><td style="padding:8px">${booking.bookingId}</td></tr>
             <tr><td style="padding:8px;background:#f7f7f7"><strong>Event</strong></td><td style="padding:8px">${event.title}</td></tr>
             <tr><td style="padding:8px;background:#f7f7f7"><strong>Date</strong></td><td style="padding:8px">${new Date(event.date).toLocaleString()}</td></tr>
-            <tr><td style="padding:8px;background:#f7f7f7"><strong>Venue</strong></td><td style="padding:8px">${event.location.venue}, ${event.location.city}</td></tr>
+            <tr><td style="padding:8px;background:#f7f7f7"><strong>Venue</strong></td><td style="padding:8px">${formatEventLocationOneLine(event.location) || `${event.location.venue}, ${event.location.city}`}</td></tr>
             <tr><td style="padding:8px;background:#f7f7f7"><strong>Ticket</strong></td><td style="padding:8px">${booking.ticketTier.name} x ${booking.quantity}</td></tr>
             <tr><td style="padding:8px;background:#f7f7f7"><strong>Total Paid</strong></td><td style="padding:8px">$${booking.totalAmount}</td></tr>
           </table>

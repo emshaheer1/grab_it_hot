@@ -7,6 +7,7 @@ import { GrabMarkIcon } from '../components/GrabMarkIcon';
 import {
   formatDateTime,
   formatEventSchedule,
+  formatEventLocationOneLine,
   eventDateToDatetimeLocalValue,
   datetimeLocalValueToEventIso,
   resolveEventImageUrl,
@@ -519,7 +520,9 @@ const AdminDashboardPage = () => {
                     />
                     <div>
                       <div style={{ fontWeight: 600 }}>{event.title}</div>
-                      <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>{event.location?.city}, {event.location?.state}</div>
+                      <div style={{ color: 'var(--text-muted)', fontSize: 13, lineHeight: 1.4 }}>
+                        {formatEventLocationOneLine(event.location) || `${event.location?.city}, ${event.location?.state}`}
+                      </div>
                       <div style={{ marginTop: 4, fontSize: 12, color: 'var(--text-secondary)' }}>{formatEventSchedule(event)}</div>
                     </div>
                   </div>
@@ -617,7 +620,7 @@ const AdminDashboardPage = () => {
                   <th style={{ padding: '10px 8px' }}>Title</th>
                   <th style={{ padding: '10px 8px' }}>Category</th>
                   <th style={{ padding: '10px 8px' }}>Date</th>
-                  <th style={{ padding: '10px 8px' }}>City</th>
+                  <th style={{ padding: '10px 8px' }}>Location</th>
                   <th style={{ padding: '10px 8px' }}>Status</th>
                   <th style={{ padding: '10px 8px' }}>Featured</th>
                   <th style={{ padding: '10px 8px' }}>Actions</th>
@@ -633,7 +636,9 @@ const AdminDashboardPage = () => {
                       <td style={{ padding: '10px 8px', fontWeight: 600 }}>{event.title}</td>
                       <td style={{ padding: '10px 8px' }}>{event.category}</td>
                       <td style={{ padding: '10px 8px' }}>{formatEventSchedule(event)}</td>
-                      <td style={{ padding: '10px 8px' }}>{event.location?.city}, {event.location?.state}</td>
+                      <td style={{ padding: '10px 8px', maxWidth: 280, fontSize: 13, lineHeight: 1.4, wordBreak: 'break-word' }}>
+                        {formatEventLocationOneLine(event.location) || `${event.location?.city}, ${event.location?.state}`}
+                      </td>
                       <td style={{ padding: '10px 8px', textTransform: 'capitalize' }}>{event.status}</td>
                       <td style={{ padding: '10px 8px' }}>{event.featured ? 'Yes' : 'No'}</td>
                       <td style={{ padding: '10px 8px' }}>

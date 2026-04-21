@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useLocation, Link } from 'react-router-dom';
 import api from '../utils/api';
-import { formatEventSchedule, formatCurrency } from '../utils/helpers';
+import { formatEventSchedule, formatCurrency, formatEventLocationOneLine } from '../utils/helpers';
 import { FaCalendarDays, FaCircleCheck, FaLocationDot, FaTicket } from 'react-icons/fa6';
 
 const ConfirmationPage = () => {
@@ -74,7 +74,10 @@ const ConfirmationPage = () => {
                 <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 22, marginBottom: 8 }}>{event.title}</h2>
                 <div style={{ display: 'flex', gap: 20, color: 'var(--text-muted)', fontSize: 14, flexWrap: 'wrap' }}>
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}><FaCalendarDays /> {formatEventSchedule(event)}</span>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}><FaLocationDot /> {event.location?.city}, {event.location?.state}</span>
+                  <span style={{ display: 'inline-flex', alignItems: 'flex-start', gap: 7, maxWidth: '100%' }}>
+                    <FaLocationDot style={{ flexShrink: 0, marginTop: 2 }} />
+                    {formatEventLocationOneLine(event.location) || `${event.location?.city}, ${event.location?.state}`}
+                  </span>
                 </div>
               </div>
             )}

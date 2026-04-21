@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
 import FarhanZellePricePair from '../components/FarhanZellePricePair';
-import { formatCurrency, formatEventSchedule, FARHAN_ZELLE_DISCOUNT_PER_TICKET, isFarhanEvent } from '../utils/helpers';
+import { formatCurrency, formatEventLocationOneLine, formatEventSchedule, FARHAN_ZELLE_DISCOUNT_PER_TICKET, isFarhanEvent } from '../utils/helpers';
 import { FaCalendarDays, FaLocationDot, FaTicket, FaXmark } from 'react-icons/fa6';
 
 const ZELLE_EMAIL = 'Payment@melodysounds.net';
@@ -169,8 +169,12 @@ const RequestTicketsPage = () => {
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
               <FaCalendarDays /> {formatEventSchedule(event)}
             </span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              <FaLocationDot /> {event.location?.venue}, {event.location?.city}
+            <span style={{ display: 'inline-flex', alignItems: 'flex-start', gap: 6 }}>
+              <FaLocationDot style={{ flexShrink: 0, marginTop: 2 }} />
+              <span>
+                {formatEventLocationOneLine(event.location) ||
+                  [event.location?.venue, event.location?.city].filter(Boolean).join(', ')}
+              </span>
             </span>
           </div>
         </div>

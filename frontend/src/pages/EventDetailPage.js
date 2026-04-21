@@ -2,13 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import FarhanZellePricePair from '../components/FarhanZellePricePair';
-import { formatEventSchedule, formatCurrency, getCategoryIcon, isFarhanEvent, resolveEventImageUrl } from '../utils/helpers';
+import { formatEventSchedule, formatCurrency, formatEventLocationOneLine, getCategoryIcon, isFarhanEvent, resolveEventImageUrl } from '../utils/helpers';
 import {
   FaCalendarDays,
   FaLocationDot,
   FaMicrophoneLines,
   FaTag,
-  FaMapPin,
   FaLock,
   FaTicket,
   FaPhone,
@@ -63,7 +62,7 @@ const EventDetailPage = () => {
 
   const detailRows = [
     [<FaCalendarDays key="d" />, 'Date & Time', formatEventSchedule(event)],
-    [<FaLocationDot key="l" />, 'Venue', `${event.location.venue}, ${event.location.city}, ${event.location.state}`],
+    [<FaLocationDot key="l" />, 'Venue', formatEventLocationOneLine(event.location) || `${event.location.venue}, ${event.location.city}, ${event.location.state}`],
     [<FaMicrophoneLines key="o" />, 'Organizer', event.organizer?.name],
     [<FaTag key="c" />, 'Category', event.category],
   ];
@@ -74,7 +73,9 @@ const EventDetailPage = () => {
     detailRows.push([<FaPhone key="p" />, 'Phone', event.organizer.phone]);
   }
 
-  const locationLine = [event.location?.venue, event.location?.city].filter(Boolean).join(', ');
+  const locationLine =
+    formatEventLocationOneLine(event.location) ||
+    [event.location?.venue, event.location?.city].filter(Boolean).join(', ');
 
   return (
     <div>
@@ -196,11 +197,6 @@ const EventDetailPage = () => {
                   </div>
                 ))}
               </div>
-              {event.location.address && (
-                <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid var(--smoke-deep)', fontSize: 14, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <FaMapPin /> {event.location.address}{event.location.zipCode ? `, ${event.location.zipCode}` : ''}
-                </div>
-              )}
             </div>
 
             {event.tags?.length > 0 && (

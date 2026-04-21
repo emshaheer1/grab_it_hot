@@ -103,6 +103,23 @@ export function farhanZelleUnitPrice(listPrice) {
   return Math.max(0, n - FARHAN_ZELLE_DISCOUNT_PER_TICKET);
 }
 
+/** One-line venue + street + city, state ZIP (e.g. ticket request summary). */
+export function formatEventLocationOneLine(loc) {
+  if (!loc || typeof loc !== 'object') return '';
+  const venue = String(loc.venue || '').trim();
+  const address = String(loc.address || '').trim();
+  const city = String(loc.city || '').trim();
+  const state = String(loc.state || '').trim();
+  const zipCode = String(loc.zipCode || '').trim();
+  const left = [venue, address].filter(Boolean).join(' ').trim();
+  const stateZip = [state, zipCode].filter(Boolean).join(' ').trim();
+  const right = [city, stateZip].filter(Boolean).join(', ').trim();
+  if (left && right) return `${left}, ${right}`;
+  if (left) return left;
+  if (right) return right;
+  return '';
+}
+
 /** Event `image` values are `/uploads/...` on the API host. On Vercel they must use the API origin or the browser loads the wrong host / a placeholder. */
 export function resolveEventImageUrl(src) {
   if (src == null || src === '') return '';
