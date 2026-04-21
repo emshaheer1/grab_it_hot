@@ -46,10 +46,7 @@ const events = [
     title: 'Farhan Live in Chicago',
     description:
       'Farhan Saeed live in Chicago — Friday, April 24, 2026 at 7:00 PM (US Central) at NUR LOFT, Addison. Presented by MFX Productions in association with M Events and Marketing. National promoter: WO ADVERTISING.\n\n' +
-      'Contacts:\n' +
-      '• Masiha — 815-242-1814\n' +
-      '• Saba Fatima — 571-699-0775\n' +
-      '• Farooq — 630-999-5097',
+      'Grab It Hot is proud to list this experience alongside other standout events in the Chicago area. When you book or request tickets here, you get clear information, careful handling of your details, and a straightforward path to confirmation. We look forward to seeing you at NUR LOFT for a memorable night with Farhan Saeed.',
     category: 'Music',
     // 7:00 PM local (US Central / Chicago) on Friday, Apr 24, 2026 — stored with CDT offset
     date: new Date('2026-04-24T19:00:00-05:00'),
@@ -73,6 +70,35 @@ const events = [
     status: 'upcoming',
     dateComingSoon: false,
     tags: ['Farhan Saeed', 'Chicago', 'live', 'MFX Productions', 'NUR LOFT', 'Addison'],
+  },
+  {
+    title: 'Jigrra Live in Concert — Jigardan Gadhvi',
+    description:
+      'JIGRRA live in concert with Jigardan Gadhvi — Saturday, May 30, 2026 at 7:00 PM onwards (US Central) at National India Hub, Schaumburg, IL. National promoter: Emerald Events.\n\n' +
+      'Presented with support from premier partners including Brightway Lending, Core Exteriors, Ajshi Events, and World Power Solutions. Tickets are available on Sulekha — choose Fan Pit or Regular as listed on the official flyer.\n\n' +
+      'Grab It Hot is proud to list this experience alongside other standout live shows in the Chicago area. When you book or request tickets here, you get clear information, careful handling of your details, and a straightforward path to confirmation. We look forward to seeing you at National India Hub for an unforgettable night.',
+    category: 'Music',
+    date: new Date('2026-05-30T19:00:00-05:00'),
+    endDate: new Date('2026-05-31T00:00:00-05:00'),
+    location: {
+      venue: 'National India Hub',
+      city: 'Schaumburg',
+      state: 'IL',
+      address: '930 National Pkwy',
+      zipCode: '60173',
+    },
+    organizer: {
+      name: 'Emerald Events',
+    },
+    image: '/uploads/jigrra-jigardan-gadhvi-schaumburg.png',
+    ticketTiers: [
+      { name: 'Fan Pit', price: 40, capacity: 200, description: 'Fan pit — closest to the stage' },
+      { name: 'Regular', price: 30, capacity: 450, description: 'General admission' },
+    ],
+    featured: true,
+    status: 'upcoming',
+    dateComingSoon: false,
+    tags: ['Jigardan Gadhvi', 'Jigrra', 'Schaumburg', 'Chicago', 'Emerald Events', 'National India Hub', 'Sulekha'],
   },
   {
     title: 'DJ Chetas — MVM Chicago',

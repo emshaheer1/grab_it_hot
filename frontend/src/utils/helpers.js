@@ -103,6 +103,27 @@ export function farhanZelleUnitPrice(listPrice) {
   return Math.max(0, n - FARHAN_ZELLE_DISCOUNT_PER_TICKET);
 }
 
+/** Drops a trailing "Contacts:" section (promoter phone lists) from public event copy. */
+export function stripContactBlockFromDescription(text) {
+  if (text == null || text === '') return '';
+  return String(text).replace(/\n+Contacts:\s*\n[\s\S]*$/i, '').trimEnd();
+}
+
+/**
+ * If copy contains a paragraph starting with "Grab It Hot" after a blank line, split for hero layout
+ * (main body + bottom-aligned closing card next to the poster).
+ */
+export function splitGrabItHotClosing(text) {
+  const cleaned = stripContactBlockFromDescription(text || '');
+  const re = /\n\n(?=Grab It Hot\b)/;
+  const idx = cleaned.search(re);
+  if (idx === -1) return { body: cleaned, closing: null };
+  return {
+    body: cleaned.slice(0, idx).trimEnd(),
+    closing: cleaned.slice(idx + 2).trim(),
+  };
+}
+
 /** One-line venue + street + city, state ZIP (e.g. ticket request summary). */
 export function formatEventLocationOneLine(loc) {
   if (!loc || typeof loc !== 'object') return '';

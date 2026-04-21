@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import FarhanZellePricePair from '../components/FarhanZellePricePair';
-import { formatEventSchedule, formatCurrency, formatEventLocationOneLine, getCategoryIcon, isFarhanEvent, resolveEventImageUrl } from '../utils/helpers';
+import { formatEventSchedule, formatCurrency, formatEventLocationOneLine, getCategoryIcon, isFarhanEvent, resolveEventImageUrl, splitGrabItHotClosing } from '../utils/helpers';
 import {
   FaCalendarDays,
   FaLocationDot,
@@ -77,108 +77,165 @@ const EventDetailPage = () => {
     formatEventLocationOneLine(event.location) ||
     [event.location?.venue, event.location?.city].filter(Boolean).join(', ');
 
+  const { body: heroDescriptionBody, closing: heroGrabClosing } = splitGrabItHotClosing(event.description);
+
   return (
     <div>
       <section style={{ background: 'var(--cloud)', borderBottom: '1px solid var(--border-light)', paddingTop: 28 }}>
         <div className="container" style={{ padding: '40px 24px 48px' }}>
           <div className="event-detail-hero-grid">
-            {/* Left: poster only */}
+            {/* Left: poster — stretches to match text column height */}
             <div
+              className="event-detail-hero-poster"
               style={{
                 background: '#06060a',
                 borderRadius: 'var(--r-xl)',
                 padding: 'clamp(16px, 3vw, 28px)',
                 display: 'flex',
-                alignItems: 'center',
+                flexDirection: 'column',
+                alignItems: 'stretch',
                 justifyContent: 'center',
                 minHeight: 280,
+                alignSelf: 'stretch',
               }}
             >
-              <img
-                src={resolveEventImageUrl(event.image)}
-                alt=""
-                style={{
-                  display: 'block',
-                  width: '100%',
-                  height: 'auto',
-                  maxHeight: 'min(72vh, 720px)',
-                  objectFit: 'contain',
-                  borderRadius: 'var(--r-md)',
-                  boxShadow: '0 20px 60px rgba(0,0,0,0.45)',
-                }}
-                onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1400'; }}
-              />
-            </div>
-
-            {/* Right: category, title, date, location, paragraph */}
-            <div style={{ paddingTop: 8, paddingBottom: 8 }}>
               <div
                 style={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                  letterSpacing: '0.12em',
-                  textTransform: 'uppercase',
-                  color: 'var(--text-muted)',
-                  marginBottom: 14,
+                  flex: 1,
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 8,
+                  justifyContent: 'center',
+                  minHeight: 0,
                 }}
               >
-                <CategoryIcon style={{ fontSize: 16, color: 'var(--flame)' }} />
-                {event.category}
+                <img
+                  src={resolveEventImageUrl(event.image)}
+                  alt=""
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    height: 'auto',
+                    maxHeight: 'min(72vh, 720px)',
+                    objectFit: 'contain',
+                    borderRadius: 'var(--r-md)',
+                    boxShadow: '0 20px 60px rgba(0,0,0,0.45)',
+                  }}
+                  onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1400'; }}
+                />
               </div>
-              <h1
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  color: 'var(--ink)',
-                  fontSize: 'clamp(28px, 3.6vw, 42px)',
-                  fontWeight: 900,
-                  letterSpacing: '-0.02em',
-                  lineHeight: 1.1,
-                  margin: '0 0 20px',
-                }}
-              >
-                {event.title}
-              </h1>
-              <p
-                style={{
-                  margin: '0 0 12px',
-                  fontSize: 16,
-                  color: 'var(--text-secondary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  flexWrap: 'wrap',
-                }}
-              >
-                <FaCalendarDays style={{ color: 'var(--flame)', flexShrink: 0 }} />
-                <span>{formatEventSchedule(event)}</span>
-              </p>
-              <p
-                style={{
-                  margin: '0 0 28px',
-                  fontSize: 16,
-                  color: 'var(--text-secondary)',
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: 10,
-                }}
-              >
-                <FaLocationDot style={{ color: 'var(--flame)', flexShrink: 0, marginTop: 3 }} />
-                <span>{locationLine}</span>
-              </p>
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 16,
-                  lineHeight: 1.85,
-                  color: 'var(--text-secondary)',
-                  whiteSpace: 'pre-line',
-                }}
-              >
-                {event.description}
-              </p>
+            </div>
+
+            {/* Right: meta + body (flex grow) + Grab It Hot card (bottom-aligned with poster) */}
+            <div
+              className="event-detail-hero-copy"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignSelf: 'stretch',
+                paddingTop: 8,
+                paddingBottom: 8,
+                minHeight: 0,
+              }}
+            >
+              <div style={{ flexShrink: 0 }}>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                    color: 'var(--text-muted)',
+                    marginBottom: 14,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                  }}
+                >
+                  <CategoryIcon style={{ fontSize: 16, color: 'var(--flame)' }} />
+                  {event.category}
+                </div>
+                <h1
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    color: 'var(--ink)',
+                    fontSize: 'clamp(28px, 3.6vw, 42px)',
+                    fontWeight: 900,
+                    letterSpacing: '-0.02em',
+                    lineHeight: 1.1,
+                    margin: '0 0 20px',
+                  }}
+                >
+                  {event.title}
+                </h1>
+                <p
+                  style={{
+                    margin: '0 0 12px',
+                    fontSize: 16,
+                    color: 'var(--text-secondary)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  <FaCalendarDays style={{ color: 'var(--flame)', flexShrink: 0 }} />
+                  <span>{formatEventSchedule(event)}</span>
+                </p>
+                <p
+                  style={{
+                    margin: '0 0 28px',
+                    fontSize: 16,
+                    color: 'var(--text-secondary)',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 10,
+                  }}
+                >
+                  <FaLocationDot style={{ color: 'var(--flame)', flexShrink: 0, marginTop: 3 }} />
+                  <span>{locationLine}</span>
+                </p>
+              </div>
+              {heroDescriptionBody ? (
+                <p
+                  style={{
+                    flex: heroGrabClosing ? 1 : undefined,
+                    margin: 0,
+                    marginBottom: heroGrabClosing ? 20 : 0,
+                    fontSize: 16,
+                    lineHeight: 1.85,
+                    color: 'var(--text-secondary)',
+                    whiteSpace: 'pre-line',
+                    minHeight: heroGrabClosing ? 0 : undefined,
+                  }}
+                >
+                  {heroDescriptionBody}
+                </p>
+              ) : heroGrabClosing ? (
+                <div style={{ flex: 1, minHeight: 0 }} aria-hidden />
+              ) : null}
+              {heroGrabClosing ? (
+                <aside
+                  className="event-detail-hero-gith"
+                  style={{
+                    marginTop: 'auto',
+                    flexShrink: 0,
+                    borderRadius: 'var(--r-xl)',
+                    border: '1px solid var(--border-light)',
+                    background: 'white',
+                    boxShadow: 'var(--shadow-sm)',
+                    padding: 'clamp(16px, 3vw, 28px)',
+                    borderLeft: '4px solid var(--flame)',
+                    fontSize: 15,
+                    lineHeight: 1.65,
+                    color: 'var(--text-secondary)',
+                  }}
+                >
+                  <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 10 }}>
+                    Grab It Hot
+                  </div>
+                  <p style={{ margin: 0, whiteSpace: 'pre-line' }}>{heroGrabClosing.replace(/^Grab It Hot\s+/i, '').trim()}</p>
+                </aside>
+              ) : null}
             </div>
           </div>
         </div>
@@ -385,7 +442,7 @@ const EventDetailPage = () => {
           display: grid;
           grid-template-columns: minmax(260px, 1fr) minmax(300px, 1.05fr);
           gap: clamp(28px, 4vw, 56px);
-          align-items: start;
+          align-items: stretch;
         }
         @media (max-width: 900px) {
           .event-detail-hero-grid { grid-template-columns: 1fr !important; }
