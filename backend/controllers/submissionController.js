@@ -19,9 +19,23 @@ function parseOrderIdFromNotes(notes) {
   return m ? m[1].trim() : '';
 }
 
+function formatUsd(amount) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+  }).format(Number(amount) || 0);
+}
+
+function parseTotalFromNotes(notes) {
+  const text = String(notes || '');
+  const m = text.match(/(?:Zelle amount due|Estimated total):\s*(\$[0-9,]+(?:\.[0-9]{1,2})?)/i);
+  return m ? m[1].trim() : '';
+}
+
 const TICKET_REQUEST_EMAIL_LOGO_CID = 'grabithot-logo';
 
-async function sendTicketRequestThankYouEmail({ toEmail, fullName, eventTitle, orderId, tierName, quantity }) {
+async function sendTicketRequestThankYouEmail({ toEmail, fullName, eventTitle, orderId, tierName, quantity, totalDisplay }) {
   if (!process.env.SMTP_HOST || !process.env.FROM_EMAIL) {
     console.warn('Ticket request thank-you email skipped: SMTP not configured');
     return;
@@ -43,6 +57,7 @@ async function sendTicketRequestThankYouEmail({ toEmail, fullName, eventTitle, o
     const safeOrder = escapeHtml(orderId || '—');
     const safeEmail = escapeHtml(toEmail);
     const safeTier = escapeHtml(tierName);
+    const safeTotal = escapeHtml(totalDisplay || '—');
 
     const logoCell = logoExists
       ? `<td style="vertical-align:middle;padding-right:14px"><img src="cid:${TICKET_REQUEST_EMAIL_LOGO_CID}" alt="" width="48" height="48" style="display:block;border:0;line-height:0" /></td>`
@@ -62,6 +77,7 @@ async function sendTicketRequestThankYouEmail({ toEmail, fullName, eventTitle, o
           </p>
           <table style="width:100%;border-collapse:collapse;margin:0 0 22px;font-size:14px">
             <tr><td style="padding:10px 12px;background:#f5f5f5;border:1px solid #e8e8e8;width:36%"><strong>Ticket</strong></td><td style="padding:10px 12px;border:1px solid #e8e8e8">${safeTier} × ${Number(quantity) || 1}</td></tr>
+            <tr><td style="padding:10px 12px;background:#f5f5f5;border:1px solid #e8e8e8"><strong>Total</strong></td><td style="padding:10px 12px;border:1px solid #e8e8e8;font-weight:700;color:#111">${safeTotal}</td></tr>
             <tr><td style="padding:10px 12px;background:#f5f5f5;border:1px solid #e8e8e8"><strong>Order ID</strong></td><td style="padding:10px 12px;border:1px solid #e8e8e8;font-family:ui-monospace,monospace;font-weight:700">${safeOrder}</td></tr>
           </table>
           <p style="margin:0;font-size:15px;line-height:1.65;color:#333">
@@ -140,6 +156,8 @@ exports.createTicketRequest = async (req, res, next) => {
     });
 
     const orderId = parseOrderIdFromNotes(notesTrimmed);
+    const totalFromNotes = parseTotalFromNotes(notesTrimmed);
+    const fallbackTotal = formatUsd(tier.price * qty);
     sendTicketRequestThankYouEmail({
       toEmail: doc.email,
       fullName: doc.fullName,
@@ -147,6 +165,7 @@ exports.createTicketRequest = async (req, res, next) => {
       orderId,
       tierName: doc.tierName,
       quantity: doc.quantity,
+      totalDisplay: totalFromNotes || fallbackTotal,
     });
 
     res.status(201).json({ success: true, data: doc });
