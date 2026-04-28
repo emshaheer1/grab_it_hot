@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import FarhanZellePricePair from '../components/FarhanZellePricePair';
-import { formatEventSchedule, formatCurrency, formatEventLocationOneLine, getCategoryIcon, isFarhanEvent, resolveEventImageUrl, splitGrabItHotClosing } from '../utils/helpers';
+import { formatEventSchedule, formatCurrency, formatEventLocationOneLine, getCategoryIcon, hasDirectPayDiscount, resolveEventImageUrl, splitGrabItHotClosing } from '../utils/helpers';
 import {
   FaCalendarDays,
   FaLocationDot,
@@ -295,8 +295,9 @@ const EventDetailPage = () => {
                         </div>
                       </div>
                       <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 22, color: 'var(--ink)', flexShrink: 0, paddingLeft: 12 }}>
-                        {isFarhanEvent(event) ? (
+                        {hasDirectPayDiscount(event) ? (
                           <FarhanZellePricePair
+                            event={event}
                             listPrice={t.price}
                             strikeStyle={{ fontSize: '0.85em', fontWeight: 700 }}
                             currentStyle={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 22, color: 'var(--ink)' }}
@@ -339,8 +340,9 @@ const EventDetailPage = () => {
                 <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid var(--smoke-mid)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>Starting from</span>
                   <span style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 24, color: 'var(--flame)' }}>
-                    {isFarhanEvent(event) ? (
+                    {hasDirectPayDiscount(event) ? (
                       <FarhanZellePricePair
+                        event={event}
                         listPrice={tier.price}
                         strikeStyle={{ fontSize: '0.82em', fontWeight: 700, color: 'var(--text-muted)' }}
                         currentStyle={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 24, color: 'var(--flame)' }}

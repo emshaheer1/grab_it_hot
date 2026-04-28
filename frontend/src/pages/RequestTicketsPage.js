@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
 import FarhanZellePricePair from '../components/FarhanZellePricePair';
-import { formatCurrency, formatEventLocationOneLine, formatEventSchedule, FARHAN_ZELLE_DISCOUNT_PER_TICKET, isFarhanEvent } from '../utils/helpers';
+import { formatCurrency, formatEventLocationOneLine, formatEventSchedule, eventDiscountPerTicket, hasDirectPayDiscount } from '../utils/helpers';
 import { FaCalendarDays, FaLocationDot, FaTicket, FaXmark } from 'react-icons/fa6';
 
 const ZELLE_EMAIL = 'Payment@melodysounds.net';
@@ -34,6 +34,8 @@ const RequestTicketsPage = () => {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [paymentModalPhase, setPaymentModalPhase] = useState('details');
   const [pendingOrderId, setPendingOrderId] = useState('');
+  const discountPerTicket = eventDiscountPerTicket(event);
+  const isDiscountedEvent = hasDirectPayDiscount(event);
 
   const exitPaymentFlowToEvent = useCallback(() => {
     navigate(`/event/${eventId}`);
@@ -110,11 +112,11 @@ const RequestTicketsPage = () => {
     try {
       const tierNow = event.ticketTiers?.find((t) => t._id === tierId);
       const listTotal = tierNow ? tierNow.price * quantity : 0;
-      const zelleDue = isFarhanEvent(event) && tierNow
-        ? Math.max(0, tierNow.price - FARHAN_ZELLE_DISCOUNT_PER_TICKET) * quantity
+      const zelleDue = isDiscountedEvent && tierNow
+        ? Math.max(0, tierNow.price - discountPerTicket) * quantity
         : listTotal;
-      const notesForAdmin = isFarhanEvent(event)
-        ? `Order ID: ${pendingOrderId}\nZelle payee: ${ZELLE_EMAIL}\nZelle amount due: ${formatCurrency(zelleDue)}\nList: ${formatCurrency(listTotal)} — $10/ticket discount, no service fee (Farhan only)`
+      const notesForAdmin = isDiscountedEvent
+        ? `Order ID: ${pendingOrderId}\nZelle payee: ${ZELLE_EMAIL}\nZelle amount due: ${formatCurrency(zelleDue)}\nList: ${formatCurrency(listTotal)} — ${formatCurrency(discountPerTicket)}/ticket discount, no service fee`
         : `Order ID: ${pendingOrderId}\nZelle payee: ${ZELLE_EMAIL}\nEstimated total: ${formatCurrency(listTotal)}`;
       await api.post('/ticket-requests', {
         fullName: fullName.trim(),
@@ -192,10 +194,11 @@ const RequestTicketsPage = () => {
                 );
               })}
             </select>
-            {isFarhanEvent(event) && tier ? (
+            {isDiscountedEvent && tier ? (
               <p style={{ margin: '10px 0 0', fontSize: 15, color: 'var(--ink)' }}>
                 Per ticket:{' '}
                 <FarhanZellePricePair
+                  event={event}
                   listPrice={tier.price}
                   strikeStyle={{ fontSize: '0.95em' }}
                   currentStyle={{ fontWeight: 700, color: 'var(--flame)' }}
@@ -224,9 +227,9 @@ const RequestTicketsPage = () => {
               <p style={{ margin: '0 0 10px' }}>
                 <FaTicket style={{ verticalAlign: 'middle', marginRight: 6 }} />
                 Ticket subtotal: <strong>{formatCurrency(tier.price * quantity)}</strong>
-                {isFarhanEvent(event) ? ` (${formatCurrency(tier.price)} × ${quantity})` : null}
+                {isDiscountedEvent ? ` (${formatCurrency(tier.price)} × ${quantity})` : null}
               </p>
-              {isFarhanEvent(event) ? (
+              {isDiscountedEvent ? (
                 <div
                   style={{
                     marginTop: 14,
@@ -249,18 +252,18 @@ const RequestTicketsPage = () => {
                       borderBottom: '1px solid var(--border-light)',
                     }}
                   >
-                    Farhan event pricing
+                    Event pricing
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10, fontSize: 14 }}>
                     <span style={{ color: 'var(--text-secondary)' }}>Discount</span>
-                    <strong style={{ color: 'var(--ink)' }}>{formatCurrency(FARHAN_ZELLE_DISCOUNT_PER_TICKET)}</strong>
+                    <strong style={{ color: 'var(--ink)' }}>{formatCurrency(discountPerTicket)}</strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12, fontSize: 14 }}>
                     <span style={{ color: 'var(--text-secondary)' }}>Service Fee</span>
                     <strong style={{ color: 'var(--ink)' }}>{formatCurrency(0)}</strong>
                   </div>
                   <p style={{ margin: '0 0 14px', fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5, fontStyle: 'italic' }}>
-                    applies to this Farhan event only
+                    applies to this event only
                   </p>
                   <div
                     style={{
@@ -276,7 +279,7 @@ const RequestTicketsPage = () => {
                   >
                     <span style={{ color: 'var(--text-secondary)', fontWeight: 600, fontSize: 14 }}>Zelle amount due</span>
                     <span style={{ color: 'var(--flame)', fontFamily: 'var(--font-display)', fontSize: 18 }}>
-                      {formatCurrency(Math.max(0, tier.price - FARHAN_ZELLE_DISCOUNT_PER_TICKET) * quantity)}
+                      {formatCurrency(Math.max(0, tier.price - discountPerTicket) * quantity)}
                     </span>
                   </div>
                 </div>
@@ -375,8 +378,8 @@ const RequestTicketsPage = () => {
                   }}
                 >
                   {formatCurrency(
-                    isFarhanEvent(event)
-                      ? Math.max(0, tier.price - FARHAN_ZELLE_DISCOUNT_PER_TICKET) * quantity
+                    isDiscountedEvent
+                      ? Math.max(0, tier.price - discountPerTicket) * quantity
                       : tier.price * quantity,
                   )}
                 </p>

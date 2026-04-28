@@ -90,17 +90,30 @@ export const datetimeLocalValueToEventIso = (str) => {
 export const formatCurrency = (amount) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(amount);
 
-/** Farhan show: Zelle request flow uses this per-ticket discount (matches RequestTickets / marketing). */
-export const FARHAN_ZELLE_DISCOUNT_PER_TICKET = 10;
+/** Event-specific request flow discount applied to list price for direct-payment events. */
+export const DIRECT_PAY_DISCOUNT_PER_TICKET = 10;
+export const FARHAN_ZELLE_DISCOUNT_PER_TICKET = DIRECT_PAY_DISCOUNT_PER_TICKET;
 
 export function isFarhanEvent(ev) {
   return Boolean(ev && /farhan/i.test(String(ev.title || '')));
 }
 
-export function farhanZelleUnitPrice(listPrice) {
+export function isDjChetasEvent(ev) {
+  return Boolean(ev && /dj\s*chetas/i.test(String(ev.title || '')));
+}
+
+export function hasDirectPayDiscount(event) {
+  return isFarhanEvent(event) || isDjChetasEvent(event);
+}
+
+export function eventDiscountPerTicket(event) {
+  return hasDirectPayDiscount(event) ? DIRECT_PAY_DISCOUNT_PER_TICKET : 0;
+}
+
+export function discountedEventUnitPrice(event, listPrice) {
   const n = Number(listPrice);
   if (Number.isNaN(n)) return 0;
-  return Math.max(0, n - FARHAN_ZELLE_DISCOUNT_PER_TICKET);
+  return Math.max(0, n - eventDiscountPerTicket(event));
 }
 
 /** Drops a trailing "Contacts:" section (promoter phone lists) from public event copy. */

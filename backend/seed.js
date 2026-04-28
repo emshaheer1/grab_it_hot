@@ -105,7 +105,7 @@ const events = [
     description:
       'MVM Chicago featuring DJ Chetas at TAO Chicago — doors open at 9:00 PM (US Central).\n\n' +
       'Presented with Sahil Promotions, TAO Chicago, and Rajshi Events.\n\n' +
-      'Tickets are also available on Eventbrite (scan the QR on the official flyer).\n\n' +
+      'Grab It Hot is proud to list this experience alongside other standout live shows in the Chicago area. When you book or request tickets here, you get clear information, careful handling of your details, and a straightforward path to confirmation. We look forward to seeing you at TAO Chicago for an unforgettable night.\n\n' +
       'Contacts:\n' +
       '• Bhavesh Patel — (773) 552-2222\n' +
       '• Gaurav Tuteja — (352) 226-1319',
@@ -125,7 +125,7 @@ const events = [
     },
     image: '/uploads/dj-chetas-mvm-chicago.png',
     ticketTiers: [
-      { name: 'Regular', price: 40, capacity: 500, description: 'Regular entry' },
+      { name: 'Regular', price: 50, capacity: 500, description: 'Regular entry' },
     ],
     featured: true,
     status: 'upcoming',
