@@ -111,7 +111,10 @@ const HomePage = () => {
 
   useEffect(() => {
     api.get('/events/featured')
-      .then((r) => setFeatured(r.data.data))
+      .then((r) => {
+        const visibleFeatured = (r.data.data || []).filter((event) => event.status !== 'completed');
+        setFeatured(visibleFeatured);
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
