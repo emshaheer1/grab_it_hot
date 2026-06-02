@@ -299,6 +299,7 @@ const EventDetailPage = () => {
                           <FarhanZellePricePair
                             event={event}
                             listPrice={t.price}
+                            tierName={t.name}
                             strikeStyle={{ fontSize: '0.85em', fontWeight: 700 }}
                             currentStyle={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 22, color: 'var(--ink)' }}
                           />
@@ -344,6 +345,7 @@ const EventDetailPage = () => {
                       <FarhanZellePricePair
                         event={event}
                         listPrice={tier.price}
+                        tierName={tier.name}
                         strikeStyle={{ fontSize: '0.82em', fontWeight: 700, color: 'var(--text-muted)' }}
                         currentStyle={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 24, color: 'var(--flame)' }}
                       />

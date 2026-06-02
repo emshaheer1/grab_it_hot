@@ -13,9 +13,10 @@ function LegacyEventsListRedirect() {
   return <Navigate to={{ pathname: '/', hash: 'featured-events' }} replace />;
 }
 
-function LegacyEventDetailRedirect() {
+/** Old bookmarked URLs used `/event/:id` — permanently redirect to `/events/:id`. */
+function LegacyEventSlugRedirect() {
   const { id } = useParams();
-  return <Navigate to={`/event/${id}`} replace />;
+  return <Navigate to={`/events/${id}`} replace />;
 }
 
 /** Scroll to top on load and whenever the route path changes (not hash-only changes on the same path). */
@@ -38,9 +39,9 @@ function AppRoutes() {
       <main style={showSiteChrome ? undefined : { minHeight: '100vh' }}>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/event/:id" element={<EventDetailPage />} />
+          <Route path="/events/:id" element={<EventDetailPage />} />
+          <Route path="/event/:id" element={<LegacyEventSlugRedirect />} />
           <Route path="/events" element={<LegacyEventsListRedirect />} />
-          <Route path="/events/:id" element={<LegacyEventDetailRedirect />} />
           <Route path="/request-tickets/:eventId" element={<RequestTicketsPage />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route

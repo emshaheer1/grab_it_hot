@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
 import FarhanZellePricePair from '../components/FarhanZellePricePair';
-import { formatCurrency, formatEventLocationOneLine, formatEventSchedule, eventDiscountPerTicket, hasDirectPayDiscount } from '../utils/helpers';
+import { formatCurrency, formatEventLocationOneLine, formatEventSchedule, discountedEventUnitPrice, eventDiscountPerTicket, hasDirectPayDiscount } from '../utils/helpers';
 import { FaCalendarDays, FaLocationDot, FaTicket, FaXmark } from 'react-icons/fa6';
 
 const ZELLE_EMAIL = 'Payment@melodysounds.net';
@@ -34,11 +34,10 @@ const RequestTicketsPage = () => {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [paymentModalPhase, setPaymentModalPhase] = useState('details');
   const [pendingOrderId, setPendingOrderId] = useState('');
-  const discountPerTicket = eventDiscountPerTicket(event);
   const isDiscountedEvent = hasDirectPayDiscount(event);
 
   const exitPaymentFlowToEvent = useCallback(() => {
-    navigate(`/event/${eventId}`);
+    navigate(`/events/${eventId}`);
     setPaymentModalOpen(false);
     setPendingOrderId('');
     setPaymentModalPhase('details');
@@ -77,7 +76,7 @@ const RequestTicketsPage = () => {
   useEffect(() => {
     if (loading || !event?.dateComingSoon) return;
     toast.info('Ticket requests are not open yet — this event is coming soon.');
-    navigate(`/event/${eventId}`, { replace: true });
+    navigate(`/events/${eventId}`, { replace: true });
   }, [loading, event, eventId, navigate]);
 
   useEffect(() => {
@@ -94,6 +93,14 @@ const RequestTicketsPage = () => {
     const t = window.setTimeout(() => exitPaymentFlowToEvent(), SUCCESS_MODAL_AUTO_CLOSE_MS);
     return () => window.clearTimeout(t);
   }, [paymentModalOpen, paymentModalPhase, exitPaymentFlowToEvent]);
+
+  useEffect(() => {
+    if (!event?.ticketTiers?.length || !tierId) return;
+    const t = event.ticketTiers.find((x) => x._id === tierId);
+    if (!t) return;
+    const avail = Math.max(0, t.capacity - t.sold);
+    if (avail > 0 && quantity > avail) setQuantity(avail);
+  }, [event, tierId, quantity]);
 
   const openPaymentModal = (e) => {
     e.preventDefault();
@@ -112,9 +119,9 @@ const RequestTicketsPage = () => {
     try {
       const tierNow = event.ticketTiers?.find((t) => t._id === tierId);
       const listTotal = tierNow ? tierNow.price * quantity : 0;
-      const zelleDue = isDiscountedEvent && tierNow
-        ? Math.max(0, tierNow.price - discountPerTicket) * quantity
-        : listTotal;
+      const unitSale = tierNow ? discountedEventUnitPrice(event, tierNow.price, tierNow.name) : 0;
+      const zelleDue = isDiscountedEvent && tierNow ? unitSale * quantity : listTotal;
+      const discountPerTicket = tierNow ? tierNow.price - unitSale : 0;
       const notesForAdmin = isDiscountedEvent
         ? `Order ID: ${pendingOrderId}\nZelle payee: ${ZELLE_EMAIL}\nZelle amount due: ${formatCurrency(zelleDue)}\nList: ${formatCurrency(listTotal)} — ${formatCurrency(discountPerTicket)}/ticket discount, no service fee`
         : `Order ID: ${pendingOrderId}\nZelle payee: ${ZELLE_EMAIL}\nEstimated total: ${formatCurrency(listTotal)}`;
@@ -153,11 +160,15 @@ const RequestTicketsPage = () => {
   }
 
   const tier = event.ticketTiers?.find((t) => t._id === tierId);
+  const tierAvail = tier ? Math.max(0, tier.capacity - tier.sold) : 0;
+  const maxQty = tierAvail > 0 ? Math.min(50, tierAvail) : 1;
+  const discountPerTicket = tier ? eventDiscountPerTicket(event, tier.name) : 0;
+  const tierUnitSale = tier ? discountedEventUnitPrice(event, tier.price, tier.name) : 0;
 
   return (
     <div style={{ background: 'var(--cloud)', minHeight: '100vh', padding: '40px 0 72px' }}>
       <div className="container" style={{ maxWidth: 720 }}>
-        <Link to={`/event/${event._id}`} style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 20, display: 'inline-block' }}>
+        <Link to={`/events/${event._id}`} style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 20, display: 'inline-block' }}>
           ← Back to event
         </Link>
         <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(26px,4vw,36px)', fontWeight: 900, marginBottom: 8 }}>Request tickets</h1>
@@ -187,9 +198,12 @@ const RequestTicketsPage = () => {
             <select className="form-input" value={tierId} onChange={(e) => setTierId(e.target.value)} required>
               {event.ticketTiers?.map((t) => {
                 const avail = t.capacity - t.sold;
+                const priceLabel = isDiscountedEvent
+                  ? `${formatCurrency(t.price)} → ${formatCurrency(discountedEventUnitPrice(event, t.price, t.name))}`
+                  : formatCurrency(t.price);
                 return (
                   <option key={t._id} value={t._id} disabled={avail <= 0}>
-                    {t.name} — {formatCurrency(t.price)}{avail <= 0 ? ' (sold out)' : ''}
+                    {t.name} — {priceLabel}{avail <= 0 ? ' (sold out)' : ` (${avail} left)`}
                   </option>
                 );
               })}
@@ -200,6 +214,7 @@ const RequestTicketsPage = () => {
                 <FarhanZellePricePair
                   event={event}
                   listPrice={tier.price}
+                  tierName={tier.name}
                   strikeStyle={{ fontSize: '0.95em' }}
                   currentStyle={{ fontWeight: 700, color: 'var(--flame)' }}
                 />
@@ -208,7 +223,17 @@ const RequestTicketsPage = () => {
           </div>
           <div className="form-field">
             <label className="form-label">Quantity</label>
-            <input className="form-input" type="number" min={1} max={50} value={quantity} onChange={(e) => setQuantity(Number(e.target.value) || 1)} />
+            <input
+              className="form-input"
+              type="number"
+              min={1}
+              max={maxQty}
+              value={quantity}
+              onChange={(e) => setQuantity(Math.min(maxQty, Math.max(1, Number(e.target.value) || 1)))}
+            />
+            {tierAvail > 0 ? (
+              <p style={{ margin: '8px 0 0', fontSize: 13, color: 'var(--text-muted)' }}>{tierAvail} ticket{tierAvail === 1 ? '' : 's'} available</p>
+            ) : null}
           </div>
           <div className="form-field">
             <label className="form-label">Full name</label>

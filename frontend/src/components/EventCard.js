@@ -1,19 +1,20 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { formatCurrency, formatEventLocationOneLine, formatEventScheduleDate, getCategoryIcon, getEventMonthDayParts, hasDirectPayDiscount, resolveEventImageUrl } from '../utils/helpers';
+import { eventCardFromPrice, formatCurrency, formatEventLocationOneLine, formatEventScheduleDate, getCategoryIcon, getEventMonthDayParts, hasDirectPayDiscount, isJunooniTourEvent, resolveEventImageUrl } from '../utils/helpers';
 import FarhanZellePricePair from './FarhanZellePricePair';
 import { FaCalendarDays, FaLocationDot } from 'react-icons/fa6';
 
 const EventCard = ({ event, style }) => {
-  const minPrice = event.minPrice ?? (event.ticketTiers?.[0]?.price || 0);
+  const { list: cardListPrice, sale: cardSalePrice } = eventCardFromPrice(event);
+  const showStrikePrice = hasDirectPayDiscount(event) && cardSalePrice < cardListPrice;
   const { month, day } = event.dateComingSoon ? { month: '', day: '' } : getEventMonthDayParts(event.date);
   const CategoryIcon = getCategoryIcon(event.category);
 
   return (
-    <Link to={`/event/${event._id}`} className="event-card" style={style}>
+    <Link to={`/events/${event._id}`} className="event-card" style={style}>
       <div className="event-card__img-wrap">
         <img
-          className="event-card__img"
+          className={`event-card__img${isJunooniTourEvent(event) ? ' event-card__img--top' : ''}`}
           src={resolveEventImageUrl(event.image)}
           alt={event.title}
           onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800'; }}
@@ -43,11 +44,11 @@ const EventCard = ({ event, style }) => {
         </div>
         <div className="event-card__footer">
           <div className="event-card__price">
-            {hasDirectPayDiscount(event) ? (
+            {showStrikePrice ? (
               <>
                 <FarhanZellePricePair
                   event={event}
-                  listPrice={minPrice}
+                  listPrice={cardListPrice}
                   strikeStyle={{ fontSize: '0.92em' }}
                   currentStyle={{ fontFamily: 'var(--font-display)', fontWeight: 900 }}
                 />
@@ -55,7 +56,7 @@ const EventCard = ({ event, style }) => {
               </>
             ) : (
               <>
-                {formatCurrency(minPrice)}
+                {formatCurrency(cardListPrice)}
                 <small>from / person</small>
               </>
             )}

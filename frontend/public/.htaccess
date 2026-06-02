@@ -1,0 +1,21 @@
+# Apache (IONOS) — Create React App SPA
+# If main.*.js shows "Unexpected token '<'", the server was returning index.html for /static/*.
+# These rules skip rewrites for /static/ and for real files first.
+
+<IfModule mod_rewrite.c>
+  Options -MultiViews
+  RewriteEngine On
+  RewriteBase /
+
+  # CRA bundles & chunk files — never rewrite to index.html
+  RewriteCond %{REQUEST_URI} (^|/)static/ [NC]
+  RewriteRule .* - [L]
+
+  # Other real files/folders (favicon, uploads, etc.)
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule .* - [L]
+
+  # Client-side routes only
+  RewriteRule ^ index.html [L]
+</IfModule>

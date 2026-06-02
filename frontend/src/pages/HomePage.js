@@ -5,6 +5,7 @@ import api from '../utils/api';
 import { toast } from 'react-toastify';
 import { FaBolt, FaCalendarAlt, FaCheckCircle, FaChevronLeft, FaChevronRight, FaEnvelope, FaHandshake, FaHeadset, FaLock, FaMapMarkerAlt, FaMobileAlt, FaMusic, FaSearch, FaShieldAlt, FaStar, FaTicketAlt } from 'react-icons/fa';
 import { GrabMarkIcon } from '../components/GrabMarkIcon';
+import { isHiddenFromHomeFeatured } from '../utils/helpers';
 
 const REVIEWS = [
   { name: 'Sarah Mitchell', location: 'New York, NY', rating: 5, role: 'Music Enthusiast', text: 'Secured my Junooni Tour tickets in minutes. Checkout was smooth and the confirmation came through right away — exactly what you want when a show is in high demand.' },
@@ -112,7 +113,9 @@ const HomePage = () => {
   useEffect(() => {
     api.get('/events/featured')
       .then((r) => {
-        const visibleFeatured = (r.data.data || []).filter((event) => event.status !== 'completed');
+        const visibleFeatured = (r.data.data || []).filter(
+          (event) => event.status !== 'completed' && !isHiddenFromHomeFeatured(event),
+        );
         setFeatured(visibleFeatured);
       })
       .catch(() => {})

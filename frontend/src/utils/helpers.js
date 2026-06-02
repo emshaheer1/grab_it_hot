@@ -5,6 +5,10 @@ import { FaBriefcase, FaLaughBeam, FaLaptopCode, FaMusic, FaPalette, FaTicketAlt
 /** Listing / detail times for US events — stored as ISO but shown in Central (venue) time */
 const EVENT_DISPLAY_TZ = 'America/Chicago';
 
+export function isJunooniTourEvent(ev) {
+  return Boolean(ev && /junooni/i.test(String(ev.title || '')));
+}
+
 export const formatDate = (date) => {
   try { return format(new Date(date), 'EEE, MMM d, yyyy'); }
   catch { return date; }
@@ -42,11 +46,15 @@ export const formatEventDate = (date) => {
 /** Full event — uses `dateComingSoon` from API when set */
 export const formatEventSchedule = (event) => {
   if (event?.dateComingSoon) return 'Coming soon';
+  if (isJunooniTourEvent(event)) {
+    return 'Fri, Aug 14, 2026 · Gates 8:00 PM · Show 9:00 PM CDT';
+  }
   return formatEventDateTime(event?.date);
 };
 
 export const formatEventScheduleDate = (event) => {
   if (event?.dateComingSoon) return 'Coming soon';
+  if (isJunooniTourEvent(event)) return 'Fri, Aug 14, 2026';
   return formatEventDate(event?.date);
 };
 
@@ -93,6 +101,24 @@ export const formatCurrency = (amount) =>
 /** Event-specific request flow discount applied to list price for direct-payment events. */
 export const DIRECT_PAY_DISCOUNT_PER_TICKET = 10;
 export const FARHAN_ZELLE_DISCOUNT_PER_TICKET = DIRECT_PAY_DISCOUNT_PER_TICKET;
+export const ARJUN_RAMPAL_LIST_PRICE = 99;
+export const ARJUN_RAMPAL_SALE_PRICE = 75;
+export const ARJUN_RAMPAL_DISCOUNT_PER_TICKET = ARJUN_RAMPAL_LIST_PRICE - ARJUN_RAMPAL_SALE_PRICE;
+
+/** List / sale prices for Junooni Tour ticket tiers (tier `price` in DB = list). */
+export const JUNOONI_TIER_PRICES = {
+  'General Admission': { list: 50, sale: 45 },
+  VIP: { list: 75, sale: 60 },
+  VVIP: { list: 150, sale: 125 },
+};
+
+export function junooniTierPricing(tierName) {
+  if (!tierName) return null;
+  const key = Object.keys(JUNOONI_TIER_PRICES).find(
+    (k) => k.toLowerCase() === String(tierName).trim().toLowerCase(),
+  );
+  return key ? JUNOONI_TIER_PRICES[key] : null;
+}
 
 export function isFarhanEvent(ev) {
   return Boolean(ev && /farhan/i.test(String(ev.title || '')));
@@ -102,18 +128,55 @@ export function isDjChetasEvent(ev) {
   return Boolean(ev && /dj\s*chetas/i.test(String(ev.title || '')));
 }
 
+export function isArjunRampalEvent(ev) {
+  return Boolean(ev && /arjun\s*rampal|rampage\s*tour/i.test(String(ev.title || '')));
+}
+
+export function isHiddenFromHomeFeatured(ev) {
+  if (!ev?.title) return false;
+  return /^(DJ\s+Chetas|Jigrra\s+Live)/i.test(String(ev.title));
+}
+
+export function eventDiscountPerTicket(event, tierName) {
+  const junooni = isJunooniTourEvent(event) && tierName ? junooniTierPricing(tierName) : null;
+  if (junooni) return junooni.list - junooni.sale;
+  if (isArjunRampalEvent(event)) return ARJUN_RAMPAL_DISCOUNT_PER_TICKET;
+  if (isFarhanEvent(event) || isDjChetasEvent(event)) return DIRECT_PAY_DISCOUNT_PER_TICKET;
+  return 0;
+}
+
 export function hasDirectPayDiscount(event) {
-  return isFarhanEvent(event) || isDjChetasEvent(event);
+  if (isJunooniTourEvent(event)) return true;
+  return eventDiscountPerTicket(event) > 0;
 }
 
-export function eventDiscountPerTicket(event) {
-  return hasDirectPayDiscount(event) ? DIRECT_PAY_DISCOUNT_PER_TICKET : 0;
-}
-
-export function discountedEventUnitPrice(event, listPrice) {
+export function discountedEventUnitPrice(event, listPrice, tierName) {
+  const junooni = isJunooniTourEvent(event) && tierName ? junooniTierPricing(tierName) : null;
+  if (junooni) return junooni.sale;
+  if (isJunooniTourEvent(event)) {
+    const n = Number(listPrice);
+    const byList = Object.values(JUNOONI_TIER_PRICES).find((p) => p.list === n);
+    if (byList) return byList.sale;
+  }
   const n = Number(listPrice);
   if (Number.isNaN(n)) return 0;
-  return Math.max(0, n - eventDiscountPerTicket(event));
+  return Math.max(0, n - eventDiscountPerTicket(event, tierName));
+}
+
+/** Lowest sale price for event cards (Junooni uses tier sale table, not flat discount). */
+export function eventCardFromPrice(event) {
+  if (isJunooniTourEvent(event)) {
+    const tiers = Object.values(JUNOONI_TIER_PRICES);
+    return {
+      list: Math.min(...tiers.map((p) => p.list)),
+      sale: Math.min(...tiers.map((p) => p.sale)),
+    };
+  }
+  const list = event?.minPrice ?? event?.ticketTiers?.[0]?.price ?? 0;
+  return {
+    list,
+    sale: hasDirectPayDiscount(event) ? discountedEventUnitPrice(event, list) : list,
+  };
 }
 
 /** Drops a trailing "Contacts:" section (promoter phone lists) from public event copy. */

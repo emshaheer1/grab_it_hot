@@ -29,9 +29,15 @@ exports.getEvents = async (req, res, next) => {
   }
 };
 
+const HOME_FEATURED_EXCLUDED_TITLE = /^(DJ\s+Chetas|Jigrra\s+Live)/i;
+
 exports.getFeaturedEvents = async (req, res, next) => {
   try {
-    const events = await Event.find({ featured: true, status: 'upcoming' }).limit(24).sort({ date: 1 });
+    const events = await Event.find({
+      featured: true,
+      status: 'upcoming',
+      title: { $not: HOME_FEATURED_EXCLUDED_TITLE },
+    }).limit(24).sort({ date: 1 });
     res.json({ success: true, data: events });
   } catch (err) {
     next(err);

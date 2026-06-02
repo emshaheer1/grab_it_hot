@@ -12,35 +12,37 @@ const events = [
   {
     title: 'Junooni Tour — USA',
     description:
-      'The Junooni Tour brings two legendary voices to stages across the United States in August 2026. Headlined by Mustafa Zahid and Ali Azmat, this high-energy concert series is presented by Nexgen Polymers. Expect an unforgettable night of rock and soul under the lights — full routing and on-sale details will be announced soon.\n\n' +
+      'JUNOONI TOUR — USA TOUR featuring Mustafa Zahid & Ali Azmat. Presented by Nexgen Polymers.\n\n' +
+      'Friday, August 14, 2026 at Aura Club Naperville, Chicago area. Gates open at 8:00 PM · Concert starts at 9:00 PM (US Central).\n\n' +
+      'Grab It Hot is proud to list this experience. When you book or request tickets here, you get clear information, careful handling of your details, and a straightforward path to confirmation.\n\n' +
       'Booking & inquiries: Fawad — +1 (847) 909-3798\n' +
       'Support: support@nexgenpolymers.com\n' +
       'Official sponsor: Nexgen Polymers — www.nexgenpolymers.com',
     category: 'Music',
-    date: new Date('2026-08-22T20:00:00'),
-    endDate: new Date('2026-08-22T23:30:00'),
+    date: new Date('2026-08-14T21:00:00-05:00'),
+    endDate: new Date('2026-08-15T01:30:00-05:00'),
     location: {
-      venue: 'USA Tour — multiple cities',
-      city: 'Chicago',
+      venue: 'Aura Club Naperville',
+      city: 'Naperville',
       state: 'IL',
-      address: 'Tour routing across the United States (cities & venues TBA)',
-      zipCode: '60601',
+      address: '808 South Route 59',
+      zipCode: '60540',
     },
     organizer: {
       name: 'Nexgen Polymers',
       email: 'support@nexgenpolymers.com',
       phone: '+1 (847) 909-3798',
     },
-    image: '/uploads/junooni-tour-poster.jpeg',
+    image: '/uploads/junooni-tour-usa-2026.png',
     ticketTiers: [
-      { name: 'General Admission', price: 65, capacity: 800, description: 'Standard entry — tour routing TBA' },
-      { name: 'Standard Seat', price: 95, capacity: 400, description: 'Reserved seating where applicable' },
-      { name: 'VIP Access', price: 185, capacity: 120, description: 'Premium seating or lounge access where offered' },
+      { name: 'General Admission', price: 50, capacity: 800, description: 'GA floor · 21+' },
+      { name: 'VIP', price: 75, capacity: 200, description: 'VIP access · venue rules apply' },
+      { name: 'VVIP', price: 150, capacity: 80, description: 'VVIP experience · limited availability' },
     ],
     featured: true,
     status: 'upcoming',
-    dateComingSoon: true,
-    tags: ['music', 'tour', 'USA', 'Mustafa Zahid', 'Ali Azmat', 'Junooni'],
+    dateComingSoon: false,
+    tags: ['Junooni', 'Mustafa Zahid', 'Ali Azmat', 'Naperville', 'Chicago', 'Nexgen Polymers'],
   },
   {
     title: 'Farhan Live in Chicago',
@@ -95,7 +97,7 @@ const events = [
       { name: 'Fan Pit', price: 40, capacity: 200, description: 'Fan pit — closest to the stage' },
       { name: 'Regular', price: 30, capacity: 450, description: 'General admission' },
     ],
-    featured: true,
+    featured: false,
     status: 'upcoming',
     dateComingSoon: false,
     tags: ['Jigardan Gadhvi', 'Jigrra', 'Schaumburg', 'Chicago', 'Emerald Events', 'National India Hub', 'Sulekha'],
@@ -127,7 +129,7 @@ const events = [
     ticketTiers: [
       { name: 'Regular', price: 50, capacity: 500, description: 'Regular entry' },
     ],
-    featured: true,
+    featured: false,
     status: 'upcoming',
     dateComingSoon: false,
     tags: ['DJ Chetas', 'MVM Chicago', 'TAO Chicago', 'Chicago', 'Sahil Promotions', 'Rajshi Events'],
@@ -154,9 +156,7 @@ const events = [
     },
     image: '/uploads/rampage-tour-arjun-chicago.png',
     ticketTiers: [
-      { name: 'General Admission', price: 55, capacity: 600, description: '21+ · GA floor' },
-      { name: 'VIP', price: 110, capacity: 150, description: 'VIP access — venue rules apply' },
-      { name: 'Table', price: 450, capacity: 25, description: 'Table experience — limited · contact promoters' },
+      { name: 'General Admission', price: 99, capacity: 5, sold: 0, description: '21+ · GA floor' },
     ],
     featured: true,
     status: 'upcoming',
