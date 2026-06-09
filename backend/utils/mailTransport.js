@@ -13,9 +13,22 @@ function isMailConfigured() {
   );
 }
 
-/** IONOS and most hosts require FROM to match the authenticated mailbox. */
+function normalizeSmtpPass(pass) {
+  return String(pass || '').replace(/\s+/g, '').trim();
+}
+
+/** Gmail and most SMTP hosts require From to match the authenticated mailbox. */
 function getFromAddress() {
-  return String(process.env.FROM_EMAIL || process.env.SMTP_USER || '').trim();
+  const user = String(process.env.SMTP_USER || '').trim();
+  const from = String(process.env.FROM_EMAIL || '').trim();
+  const host = String(process.env.SMTP_HOST || '').toLowerCase();
+  if (host.includes('gmail') && user) {
+    if (from && from.toLowerCase() !== user.toLowerCase()) {
+      console.warn(`[mail] Gmail requires From = SMTP_USER; using ${user} instead of ${from}`);
+    }
+    return user;
+  }
+  return from || user;
 }
 
 function getFromHeader() {
@@ -38,8 +51,8 @@ function createMailTransporter() {
     port,
     secure,
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      user: String(process.env.SMTP_USER || '').trim(),
+      pass: normalizeSmtpPass(process.env.SMTP_PASS),
     },
     tls: {
       minVersion: 'TLSv1.2',
@@ -67,7 +80,7 @@ async function verifyMailTransport() {
   } catch (err) {
     console.error('[mail] SMTP verify failed:', err.message);
     if (err.response) console.error('[mail] SMTP response:', err.response);
-    console.error('[mail] IONOS tip: SMTP_HOST=smtp.ionos.com, PORT=587, SMTP_USER=full@yourdomain.com, FROM_EMAIL=same as SMTP_USER');
+    console.error('[mail] Gmail tip: SMTP_USER=grabithot@gmail.com, FROM_EMAIL=same address, SMTP_PASS=16-char App Password (2FA on)');
     return false;
   }
 }
