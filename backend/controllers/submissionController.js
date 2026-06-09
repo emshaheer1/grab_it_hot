@@ -4,6 +4,7 @@ const nodemailer = require('nodemailer');
 const Event = require('../models/Event');
 const ContactMessage = require('../models/ContactMessage');
 const TicketRequest = require('../models/TicketRequest');
+const { sendTicketRequestAdminAlert } = require('../utils/adminAlerts');
 
 function escapeHtml(s) {
   if (s == null) return '';
@@ -158,6 +159,7 @@ exports.createTicketRequest = async (req, res, next) => {
     const orderId = parseOrderIdFromNotes(notesTrimmed);
     const totalFromNotes = parseTotalFromNotes(notesTrimmed);
     const fallbackTotal = formatUsd(tier.price * qty);
+    const totalDisplay = totalFromNotes || fallbackTotal;
     sendTicketRequestThankYouEmail({
       toEmail: doc.email,
       fullName: doc.fullName,
@@ -165,7 +167,18 @@ exports.createTicketRequest = async (req, res, next) => {
       orderId,
       tierName: doc.tierName,
       quantity: doc.quantity,
-      totalDisplay: totalFromNotes || fallbackTotal,
+      totalDisplay,
+    });
+    sendTicketRequestAdminAlert({
+      fullName: doc.fullName,
+      email: doc.email,
+      phone: doc.phone,
+      eventTitle: doc.eventTitle,
+      tierName: doc.tierName,
+      quantity: doc.quantity,
+      orderId,
+      totalDisplay,
+      notes: notesTrimmed,
     });
 
     res.status(201).json({ success: true, data: doc });

@@ -3,6 +3,7 @@ const Event = require('../models/Event');
 const User = require('../models/User');
 const { formatEventLocationOneLine } = require('../utils/formatEventLocationOneLine');
 const nodemailer = require('nodemailer');
+const { sendBookingAdminAlert } = require('../utils/adminAlerts');
 
 const sendConfirmationEmail = async (booking, event) => {
   try {
@@ -79,6 +80,7 @@ exports.createBooking = async (req, res, next) => {
 
     // Send confirmation email (non-blocking)
     sendConfirmationEmail(booking, event);
+    sendBookingAdminAlert({ booking, event, tier });
 
     res.status(201).json({ success: true, data: booking });
   } catch (err) {
