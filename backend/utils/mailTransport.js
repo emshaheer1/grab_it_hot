@@ -54,6 +54,9 @@ function createMailTransporter() {
       user: String(process.env.SMTP_USER || '').trim(),
       pass: normalizeSmtpPass(process.env.SMTP_PASS),
     },
+    connectionTimeout: 15000,
+    greetingTimeout: 15000,
+    socketTimeout: 20000,
     tls: {
       minVersion: 'TLSv1.2',
     },

@@ -151,7 +151,11 @@ exports.createTicketRequest = async (req, res, next) => {
     const totalFromNotes = parseTotalFromNotes(notesTrimmed);
     const fallbackTotal = formatUsd(tier.price * qty);
     const totalDisplay = totalFromNotes || fallbackTotal;
-    const emailResults = await Promise.allSettled([
+
+    // Respond immediately so the thank-you modal is not blocked by slow SMTP (common on shared hosts).
+    res.status(201).json({ success: true, data: doc });
+
+    void Promise.allSettled([
       sendTicketRequestThankYouEmail({
         toEmail: doc.email,
         fullName: doc.fullName,
@@ -172,16 +176,15 @@ exports.createTicketRequest = async (req, res, next) => {
         totalDisplay,
         notes: notesTrimmed,
       }),
-    ]);
-    emailResults.forEach((result, i) => {
-      if (result.status === 'rejected') {
-        console.error(`[mail] Ticket request email ${i === 0 ? 'customer' : 'admin'} failed:`, result.reason);
-      } else if (result.value && result.value.ok === false) {
-        console.error(`[mail] Ticket request email ${i === 0 ? 'customer' : 'admin'} failed:`, result.value.error);
-      }
+    ]).then((emailResults) => {
+      emailResults.forEach((result, i) => {
+        if (result.status === 'rejected') {
+          console.error(`[mail] Ticket request email ${i === 0 ? 'customer' : 'admin'} failed:`, result.reason);
+        } else if (result.value && result.value.ok === false) {
+          console.error(`[mail] Ticket request email ${i === 0 ? 'customer' : 'admin'} failed:`, result.value.error);
+        }
+      });
     });
-
-    res.status(201).json({ success: true, data: doc });
   } catch (err) {
     next(err);
   }

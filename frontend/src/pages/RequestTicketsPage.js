@@ -135,6 +135,7 @@ const RequestTicketsPage = () => {
         notes: notesForAdmin,
       });
       setPaymentModalPhase('success');
+      toast.success('Request received — thank you!');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Could not submit request');
     } finally {

@@ -72,12 +72,12 @@ exports.createBooking = async (req, res, next) => {
     // Link booking to user
     await User.findByIdAndUpdate(req.user.id, { $push: { bookings: booking._id } });
 
-    await Promise.allSettled([
+    res.status(201).json({ success: true, data: booking });
+
+    void Promise.allSettled([
       sendConfirmationEmail(booking, event),
       sendBookingAdminAlert({ booking, event, tier }),
     ]);
-
-    res.status(201).json({ success: true, data: booking });
   } catch (err) {
     next(err);
   }
