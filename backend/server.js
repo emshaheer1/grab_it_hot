@@ -7,6 +7,8 @@ const dotenv = require('dotenv');
 
 dotenv.config({ path: path.join(__dirname, '.env') });
 
+const { isMailConfigured, verifyMailTransport } = require('./utils/mailTransport');
+
 const app = express();
 
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -55,7 +57,11 @@ app.use('/api/ticket-requests', require('./routes/ticketRequestsPublic'));
 app.use('/api/admin', require('./routes/admin'));
 
 // Health check
-app.get('/api/health', (req, res) => res.json({ status: 'OK', message: 'Grab It Hot API running' }));
+app.get('/api/health', (req, res) => res.json({
+  status: 'OK',
+  message: 'Grab It Hot API running',
+  mail: isMailConfigured() ? 'configured' : 'missing_smtp_env',
+}));
 
 // Global error handler
 app.use((err, req, res, next) => {
@@ -91,6 +97,8 @@ mongoose
   .then(() => {
     const dbName = mongoose.connection?.db?.databaseName;
     console.log('MongoDB connected', dbName ? `(database: ${dbName})` : '');
+
+    verifyMailTransport().catch(() => {});
 
     const server = app.listen(PORT, () => {
       console.log(`API ready at http://localhost:${PORT}`);

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const nodemailer = require('nodemailer');
 const Event = require('../models/Event');
+const { sendMail } = require('../utils/mailTransport');
 const ContactMessage = require('../models/ContactMessage');
 const TicketRequest = require('../models/TicketRequest');
 const { sendTicketRequestAdminAlert } = require('../utils/adminAlerts');
@@ -37,10 +37,6 @@ function parseTotalFromNotes(notes) {
 const TICKET_REQUEST_EMAIL_LOGO_CID = 'grabithot-logo';
 
 async function sendTicketRequestThankYouEmail({ toEmail, fullName, eventTitle, orderId, tierName, quantity, totalDisplay }) {
-  if (!process.env.SMTP_HOST || !process.env.FROM_EMAIL) {
-    console.warn('Ticket request thank-you email skipped: SMTP not configured');
-    return;
-  }
   try {
     const logoPath = path.join(__dirname, '..', 'email-assets', 'grab-mark.png');
     const logoExists = fs.existsSync(logoPath);
@@ -48,11 +44,6 @@ async function sendTicketRequestThankYouEmail({ toEmail, fullName, eventTitle, o
       ? [{ filename: 'grab-mark.png', path: logoPath, cid: TICKET_REQUEST_EMAIL_LOGO_CID }]
       : [];
 
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT,
-      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-    });
     const safeName = escapeHtml(fullName);
     const safeTitle = escapeHtml(eventTitle);
     const safeOrder = escapeHtml(orderId || '—');
@@ -64,8 +55,7 @@ async function sendTicketRequestThankYouEmail({ toEmail, fullName, eventTitle, o
       ? `<td style="vertical-align:middle;padding-right:14px"><img src="cid:${TICKET_REQUEST_EMAIL_LOGO_CID}" alt="" width="48" height="48" style="display:block;border:0;line-height:0" /></td>`
       : '';
 
-    await transporter.sendMail({
-      from: `"${process.env.FROM_NAME || 'Grab It Hot'}" <${process.env.FROM_EMAIL}>`,
+    return sendMail({
       to: toEmail,
       subject: `We received your ticket request — ${eventTitle}`,
       attachments,
@@ -101,7 +91,8 @@ async function sendTicketRequestThankYouEmail({ toEmail, fullName, eventTitle, o
       `,
     });
   } catch (err) {
-    console.error('Ticket request thank-you email error:', err.message);
+    console.error('[mail] Ticket request thank-you error:', err.message);
+    return { ok: false, error: err.message };
   }
 }
 
@@ -160,25 +151,34 @@ exports.createTicketRequest = async (req, res, next) => {
     const totalFromNotes = parseTotalFromNotes(notesTrimmed);
     const fallbackTotal = formatUsd(tier.price * qty);
     const totalDisplay = totalFromNotes || fallbackTotal;
-    sendTicketRequestThankYouEmail({
-      toEmail: doc.email,
-      fullName: doc.fullName,
-      eventTitle: doc.eventTitle,
-      orderId,
-      tierName: doc.tierName,
-      quantity: doc.quantity,
-      totalDisplay,
-    });
-    sendTicketRequestAdminAlert({
-      fullName: doc.fullName,
-      email: doc.email,
-      phone: doc.phone,
-      eventTitle: doc.eventTitle,
-      tierName: doc.tierName,
-      quantity: doc.quantity,
-      orderId,
-      totalDisplay,
-      notes: notesTrimmed,
+    const emailResults = await Promise.allSettled([
+      sendTicketRequestThankYouEmail({
+        toEmail: doc.email,
+        fullName: doc.fullName,
+        eventTitle: doc.eventTitle,
+        orderId,
+        tierName: doc.tierName,
+        quantity: doc.quantity,
+        totalDisplay,
+      }),
+      sendTicketRequestAdminAlert({
+        fullName: doc.fullName,
+        email: doc.email,
+        phone: doc.phone,
+        eventTitle: doc.eventTitle,
+        tierName: doc.tierName,
+        quantity: doc.quantity,
+        orderId,
+        totalDisplay,
+        notes: notesTrimmed,
+      }),
+    ]);
+    emailResults.forEach((result, i) => {
+      if (result.status === 'rejected') {
+        console.error(`[mail] Ticket request email ${i === 0 ? 'customer' : 'admin'} failed:`, result.reason);
+      } else if (result.value && result.value.ok === false) {
+        console.error(`[mail] Ticket request email ${i === 0 ? 'customer' : 'admin'} failed:`, result.value.error);
+      }
     });
 
     res.status(201).json({ success: true, data: doc });

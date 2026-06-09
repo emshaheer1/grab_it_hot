@@ -2,18 +2,12 @@ const Booking = require('../models/Booking');
 const Event = require('../models/Event');
 const User = require('../models/User');
 const { formatEventLocationOneLine } = require('../utils/formatEventLocationOneLine');
-const nodemailer = require('nodemailer');
+const { sendMail } = require('../utils/mailTransport');
 const { sendBookingAdminAlert } = require('../utils/adminAlerts');
 
 const sendConfirmationEmail = async (booking, event) => {
   try {
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT,
-      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-    });
-    await transporter.sendMail({
-      from: `"${process.env.FROM_NAME}" <${process.env.FROM_EMAIL}>`,
+    return sendMail({
       to: booking.attendeeInfo.email,
       subject: `Booking Confirmed – ${event.title}`,
       html: `
@@ -78,9 +72,10 @@ exports.createBooking = async (req, res, next) => {
     // Link booking to user
     await User.findByIdAndUpdate(req.user.id, { $push: { bookings: booking._id } });
 
-    // Send confirmation email (non-blocking)
-    sendConfirmationEmail(booking, event);
-    sendBookingAdminAlert({ booking, event, tier });
+    await Promise.allSettled([
+      sendConfirmationEmail(booking, event),
+      sendBookingAdminAlert({ booking, event, tier }),
+    ]);
 
     res.status(201).json({ success: true, data: booking });
   } catch (err) {

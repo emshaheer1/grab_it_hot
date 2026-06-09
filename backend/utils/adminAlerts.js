@@ -1,5 +1,5 @@
-const nodemailer = require('nodemailer');
 const { getAdminEmail } = require('../config/adminCredentials');
+const { sendMail } = require('./mailTransport');
 
 function escapeHtml(s) {
   if (s == null) return '';
@@ -23,38 +23,18 @@ function getAdminDashboardUrl() {
   return `${base}/admin`;
 }
 
-function createSmtpTransporter() {
-  if (!process.env.SMTP_HOST || !process.env.SMTP_USER) return null;
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-  });
-}
-
 async function sendAdminAlert({ subject, html, text }) {
   const recipients = getAdminAlertRecipients();
   if (!recipients.length) {
-    console.warn('Admin alert skipped: set ADMIN_ALERT_EMAIL or ADMIN_EMAIL in .env');
-    return;
+    console.warn('[mail] Admin alert skipped: set ADMIN_ALERT_EMAIL or ADMIN_EMAIL');
+    return { ok: false, error: 'no_recipients' };
   }
-  const transporter = createSmtpTransporter();
-  if (!transporter) {
-    console.warn('Admin alert skipped: SMTP not configured');
-    return;
-  }
-  const from = process.env.FROM_EMAIL || process.env.SMTP_USER;
-  try {
-    await transporter.sendMail({
-      from: `"${process.env.FROM_NAME || 'Grab It Hot'}" <${from}>`,
-      to: recipients.join(', '),
-      subject,
-      html,
-      text,
-    });
-  } catch (err) {
-    console.error('Admin alert email error:', err.message);
-  }
+  return sendMail({
+    to: recipients.join(', '),
+    subject,
+    html,
+    text,
+  });
 }
 
 /**
