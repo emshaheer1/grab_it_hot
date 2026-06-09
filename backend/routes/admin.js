@@ -12,6 +12,7 @@ const {
   markNewTicketRequestsReviewed,
   deleteContactMessage,
   deleteTicketRequest,
+  testMail,
 } = require('../controllers/adminController');
 
 router.get('/summary', protect, authorize('admin'), getDashboardSummary);
@@ -26,5 +27,6 @@ router.get('/notifications/clear-ticket-requests', protect, authorize('admin'), 
 router.post('/ticket-requests/mark-reviewed', protect, authorize('admin'), markNewTicketRequestsReviewed);
 router.delete('/contacts/:id', protect, authorize('admin'), deleteContactMessage);
 router.delete('/ticket-requests/:id', protect, authorize('admin'), deleteTicketRequest);
+router.post('/test-mail', protect, authorize('admin'), testMail);
 
 module.exports = router;

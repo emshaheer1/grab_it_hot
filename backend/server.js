@@ -7,7 +7,7 @@ const dotenv = require('dotenv');
 
 dotenv.config({ path: path.join(__dirname, '.env') });
 
-const { isMailConfigured, verifyMailTransport } = require('./utils/mailTransport');
+const { getMailStatus, verifyMailTransport } = require('./utils/mailTransport');
 
 const app = express();
 
@@ -60,7 +60,7 @@ app.use('/api/admin', require('./routes/admin'));
 app.get('/api/health', (req, res) => res.json({
   status: 'OK',
   message: 'Grab It Hot API running',
-  mail: isMailConfigured() ? 'configured' : 'missing_smtp_env',
+  mail: getMailStatus(),
 }));
 
 // Global error handler

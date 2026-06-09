@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const User = require('../models/User');
+const { sendMail, getMailTransportType } = require('../utils/mailTransport');
+const { getAdminAlertRecipients } = require('../utils/adminAlerts');
 const Event = require('../models/Event');
 const Booking = require('../models/Booking');
 const ContactMessage = require('../models/ContactMessage');
@@ -179,6 +181,35 @@ exports.deleteTicketRequest = async (req, res, next) => {
     }
     await doc.deleteOne();
     res.json({ success: true, message: 'Ticket request deleted' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.testMail = async (req, res, next) => {
+  try {
+    const recipients = getAdminAlertRecipients();
+    const to = String(req.body?.to || recipients[0] || '').trim();
+    if (!to) {
+      return res.status(400).json({
+        success: false,
+        message: 'Set ADMIN_ALERT_EMAIL on the server or pass { "to": "you@example.com" }',
+      });
+    }
+
+    const result = await sendMail({
+      to,
+      subject: 'Grab It Hot — test email',
+      text: 'If you received this, production email is working.',
+      html: '<p>If you received this, <strong>production email is working</strong>.</p>',
+    });
+
+    res.json({
+      success: result.ok,
+      transport: getMailTransportType(),
+      to,
+      ...(result.ok ? { message: 'Test email sent' } : { message: result.error || 'Send failed' }),
+    });
   } catch (err) {
     next(err);
   }
