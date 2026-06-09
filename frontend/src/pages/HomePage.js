@@ -5,7 +5,7 @@ import api from '../utils/api';
 import { toast } from 'react-toastify';
 import { FaBolt, FaCalendarAlt, FaCheckCircle, FaChevronLeft, FaChevronRight, FaEnvelope, FaHandshake, FaHeadset, FaLock, FaMapMarkerAlt, FaMobileAlt, FaMusic, FaSearch, FaShieldAlt, FaStar, FaTicketAlt } from 'react-icons/fa';
 import { GrabMarkIcon } from '../components/GrabMarkIcon';
-import { isHiddenFromHomeFeatured } from '../utils/helpers';
+import { isHomeFeaturedEvent } from '../utils/helpers';
 
 const REVIEWS = [
   { name: 'Sarah Mitchell', location: 'New York, NY', rating: 5, role: 'Music Enthusiast', text: 'Secured my Junooni Tour tickets in minutes. Checkout was smooth and the confirmation came through right away — exactly what you want when a show is in high demand.' },
@@ -114,7 +114,7 @@ const HomePage = () => {
     api.get('/events/featured')
       .then((r) => {
         const visibleFeatured = (r.data.data || []).filter(
-          (event) => event.status !== 'completed' && !isHiddenFromHomeFeatured(event),
+          (event) => event.status !== 'completed' && isHomeFeaturedEvent(event),
         );
         setFeatured(visibleFeatured);
       })
@@ -512,8 +512,8 @@ const HomePage = () => {
                 ))}
               </div>
 
-              <Link to={toFeatured} className="btn btn-primary" style={{ padding: '16px 36px', fontSize: 15 }}>
-                Upcoming events →
+              <Link to="/events/upcoming" className="btn btn-primary" style={{ padding: '16px 36px', fontSize: 15 }}>
+                Browse events →
               </Link>
             </div>
           </div>

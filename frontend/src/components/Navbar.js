@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { GrabMarkIcon } from './GrabMarkIcon';
+import EventsNavDropdown from './EventsNavDropdown';
 
-const toFeatured = { pathname: '/', hash: 'featured-events' };
 const toAbout = { pathname: '/', hash: 'about' };
 const toReviews = { pathname: '/', hash: 'reviews' };
 const toContact = { pathname: '/', hash: 'contact' };
@@ -12,7 +12,6 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  /* Only the home hero uses a dark underlay; other routes are light pages → solid bar + dark link text */
   const isDarkPage = location.pathname === '/';
 
   useEffect(() => {
@@ -23,12 +22,10 @@ const Navbar = () => {
 
   useEffect(() => { setMenuOpen(false); }, [location]);
 
-  const navLinks = [
-    { to: '/', label: 'Home', end: true },
-    { to: toFeatured, label: 'Upcoming events', hash: true },
-    { to: toAbout, label: 'About', hash: true },
-    { to: toReviews, label: 'Reviews', hash: true },
-    { to: toContact, label: 'Contact', hash: true },
+  const hashLinks = [
+    { to: toAbout, label: 'About' },
+    { to: toReviews, label: 'Reviews' },
+    { to: toContact, label: 'Contact' },
   ];
 
   const scrolled_or_light = scrolled || !isDarkPage;
@@ -43,6 +40,8 @@ const Navbar = () => {
     transition: 'all 0.2s',
     textDecoration: 'none',
   });
+
+  const closeMobile = () => setMenuOpen(false);
 
   return (
     <>
@@ -74,30 +73,27 @@ const Navbar = () => {
           </Link>
 
           <div className="hide-mobile" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, minWidth: 0 }}>
-            {navLinks.map((l) => (
-              l.hash ? (
-                <Link key={l.label} to={l.to} style={linkStyle(scrolled_or_light)} className="navbar-link">
-                  {l.label}
-                </Link>
-              ) : (
-                <NavLink
-                  key={l.to}
-                  to={l.to}
-                  end={l.end}
-                  className={({ isActive }) => `navbar-link ${isActive ? 'navbar-link--active' : ''}`}
-                  style={({ isActive }) => ({
-                    ...linkStyle(scrolled_or_light),
-                    background: 'transparent',
-                  })}
-                >
-                  {l.label}
-                </NavLink>
-              )
+            <NavLink
+              to="/"
+              end
+              className={({ isActive }) => `navbar-link ${isActive ? 'navbar-link--active' : ''}`}
+              style={() => ({
+                ...linkStyle(scrolled_or_light),
+                background: 'transparent',
+              })}
+            >
+              Home
+            </NavLink>
+            <EventsNavDropdown scrolledLight={scrolled_or_light} linkStyle={linkStyle} />
+            {hashLinks.map((l) => (
+              <Link key={l.label} to={l.to} style={linkStyle(scrolled_or_light)} className="navbar-link">
+                {l.label}
+              </Link>
             ))}
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-            <Link to={toFeatured} className="btn btn-primary hide-mobile" style={{ padding: '11px 22px', fontSize: 14 }}>
+            <Link to="/events/upcoming" className="btn btn-primary hide-mobile" style={{ padding: '11px 22px', fontSize: 14 }}>
               Browse Events
             </Link>
 
@@ -135,14 +131,19 @@ const Navbar = () => {
         overflow: 'hidden',
         transition: 'all 0.35s cubic-bezier(0.22,1,0.36,1)',
       }}>
-        {navLinks.map((l) => (
-          <Link key={l.label} to={l.to}
+        <Link to="/" onClick={closeMobile}
+          style={{ display: 'block', padding: '14px 0', fontSize: 16, fontWeight: 500, borderBottom: '1px solid rgba(0,0,0,0.06)', color: '#0A0A0A' }}>
+          Home
+        </Link>
+        <EventsNavDropdown mobile scrolledLight linkStyle={linkStyle} onNavigate={closeMobile} />
+        {hashLinks.map((l) => (
+          <Link key={l.label} to={l.to} onClick={closeMobile}
             style={{ display: 'block', padding: '14px 0', fontSize: 16, fontWeight: 500, borderBottom: '1px solid rgba(0,0,0,0.06)', color: '#0A0A0A' }}>
             {l.label}
           </Link>
         ))}
         <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <Link to={toFeatured} className="btn btn-primary" style={{ justifyContent: 'center' }}>Browse Events</Link>
+          <Link to="/events/upcoming" onClick={closeMobile} className="btn btn-primary" style={{ justifyContent: 'center' }}>Browse Events</Link>
         </div>
       </div>
 

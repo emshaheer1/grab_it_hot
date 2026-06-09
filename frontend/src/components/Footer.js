@@ -41,7 +41,8 @@ const Footer = () => (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {[
               ['/', 'Home'],
-              [{ pathname: '/', hash: 'featured-events' }, 'Upcoming events'],
+              ['/events/upcoming', 'Upcoming events'],
+              ['/events/past', 'Past events'],
               [{ pathname: '/', hash: 'about' }, 'About'],
               [{ pathname: '/', hash: 'reviews' }, 'Reviews'],
               [{ pathname: '/', hash: 'contact' }, 'Contact'],
@@ -61,7 +62,7 @@ const Footer = () => (
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: 22 }}>Categories</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {['Music'].map((cat) => (
-              <Link key={cat} to={{ pathname: '/', hash: 'featured-events' }}
+              <Link key={cat} to="/events/upcoming"
                 style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, transition: 'color 0.2s' }}
                 onMouseEnter={e => e.currentTarget.style.color = 'white'}
                 onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.5)'}>

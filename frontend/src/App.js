@@ -4,13 +4,15 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import EventDetailPage from './pages/EventDetailPage';
+import UpcomingEventsPage from './pages/UpcomingEventsPage';
+import PastEventsPage from './pages/PastEventsPage';
 import RequestTicketsPage from './pages/RequestTicketsPage';
 import AdminRoute from './components/AdminRoute';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 
 function LegacyEventsListRedirect() {
-  return <Navigate to={{ pathname: '/', hash: 'featured-events' }} replace />;
+  return <Navigate to="/events/upcoming" replace />;
 }
 
 /** Old bookmarked URLs used `/event/:id` — permanently redirect to `/events/:id`. */
@@ -39,6 +41,8 @@ function AppRoutes() {
       <main style={showSiteChrome ? undefined : { minHeight: '100vh' }}>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/events/upcoming" element={<UpcomingEventsPage />} />
+          <Route path="/events/past" element={<PastEventsPage />} />
           <Route path="/events/:id" element={<EventDetailPage />} />
           <Route path="/event/:id" element={<LegacyEventSlugRedirect />} />
           <Route path="/events" element={<LegacyEventsListRedirect />} />

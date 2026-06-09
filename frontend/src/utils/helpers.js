@@ -134,7 +134,12 @@ export function isArjunRampalEvent(ev) {
 
 export function isHiddenFromHomeFeatured(ev) {
   if (!ev?.title) return false;
-  return /^(DJ\s+Chetas|Jigrra\s+Live)/i.test(String(ev.title));
+  return /^(DJ\s+Chetas|Jigrra\s+Live|Arjun\s+Rampal|Rampage\s+Tour)/i.test(String(ev.title));
+}
+
+/** Home featured carousel shows Junooni Tour only. */
+export function isHomeFeaturedEvent(ev) {
+  return isJunooniTourEvent(ev);
 }
 
 export function eventDiscountPerTicket(event, tierName) {

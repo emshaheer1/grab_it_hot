@@ -2,8 +2,15 @@ const Event = require('../models/Event');
 
 exports.getEvents = async (req, res, next) => {
   try {
-    const { city, state, category, minPrice, maxPrice, date, search, page = 1, limit = 9 } = req.query;
-    const query = { status: { $in: ['upcoming', 'ongoing'] } };
+    const { city, state, category, minPrice, maxPrice, date, search, status, page = 1, limit = 9 } = req.query;
+    const query = {};
+    if (status === 'past' || status === 'completed') {
+      query.status = 'completed';
+    } else if (status === 'upcoming') {
+      query.status = { $in: ['upcoming', 'ongoing'] };
+    } else {
+      query.status = { $in: ['upcoming', 'ongoing'] };
+    }
 
     if (city) query['location.city'] = { $regex: city, $options: 'i' };
     if (state) query['location.state'] = { $regex: state, $options: 'i' };
@@ -29,7 +36,7 @@ exports.getEvents = async (req, res, next) => {
   }
 };
 
-const HOME_FEATURED_EXCLUDED_TITLE = /^(DJ\s+Chetas|Jigrra\s+Live)/i;
+const HOME_FEATURED_EXCLUDED_TITLE = /^(DJ\s+Chetas|Jigrra\s+Live|Arjun\s+Rampal|Rampage\s+Tour)/i;
 
 exports.getFeaturedEvents = async (req, res, next) => {
   try {
