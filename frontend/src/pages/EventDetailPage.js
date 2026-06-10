@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import FarhanZellePricePair from '../components/FarhanZellePricePair';
-import { formatEventSchedule, formatCurrency, formatEventLocationOneLine, getCategoryIcon, hasDirectPayDiscount, resolveEventImageUrl, splitGrabItHotClosing } from '../utils/helpers';
+import { formatEventSchedule, formatCurrency, formatEventLocationOneLine, getCategoryIcon, hasDirectPayDiscount, junooniTierDisplayName, resolveEventImageUrl, splitGrabItHotClosing } from '../utils/helpers';
 import {
   FaCalendarDays,
   FaLocationDot,
@@ -286,7 +286,7 @@ const EventDetailPage = () => {
                       }}>
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                          <div style={{ fontWeight: 700, fontSize: 15 }}>{t.name}</div>
+                          <div style={{ fontWeight: 700, fontSize: 15 }}>{junooniTierDisplayName(event, t.name)}</div>
                           {sel && <span style={{ fontSize: 11, background: 'var(--flame)', color: 'white', borderRadius: 'var(--r-pill)', padding: '2px 8px', fontWeight: 700 }}>Selected</span>}
                         </div>
                         {t.description && <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{t.description}</div>}

@@ -37,7 +37,12 @@ const events = [
     ticketTiers: [
       { name: 'General Admission', price: 50, capacity: 800, description: 'GA floor · 21+' },
       { name: 'VIP', price: 75, capacity: 200, description: 'VIP access · venue rules apply' },
-      { name: 'VVIP', price: 150, capacity: 80, description: 'VVIP experience · limited availability' },
+      {
+        name: 'VVIP (Meet&Greet Included)',
+        price: 150,
+        capacity: 80,
+        description: 'VVIP · Meet & Greet included · limited availability',
+      },
     ],
     featured: true,
     status: 'upcoming',

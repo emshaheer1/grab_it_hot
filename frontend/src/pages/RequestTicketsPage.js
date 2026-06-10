@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
 import FarhanZellePricePair from '../components/FarhanZellePricePair';
-import { formatCurrency, formatEventLocationOneLine, formatEventSchedule, discountedEventUnitPrice, eventDiscountPerTicket, hasDirectPayDiscount } from '../utils/helpers';
+import { formatCurrency, formatEventLocationOneLine, formatEventSchedule, discountedEventUnitPrice, eventDiscountPerTicket, hasDirectPayDiscount, junooniTierDisplayName } from '../utils/helpers';
 import { FaCalendarDays, FaLocationDot, FaTicket, FaXmark } from 'react-icons/fa6';
 
 const ZELLE_EMAIL = 'Payment@melodysounds.net';
@@ -204,7 +204,7 @@ const RequestTicketsPage = () => {
                   : formatCurrency(t.price);
                 return (
                   <option key={t._id} value={t._id} disabled={avail <= 0}>
-                    {t.name} — {priceLabel}{avail <= 0 ? ' (sold out)' : ` (${avail} left)`}
+                    {junooniTierDisplayName(event, t.name)} — {priceLabel}{avail <= 0 ? ' (sold out)' : ` (${avail} left)`}
                   </option>
                 );
               })}

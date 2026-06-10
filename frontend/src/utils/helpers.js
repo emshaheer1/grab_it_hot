@@ -108,16 +108,32 @@ export const ARJUN_RAMPAL_DISCOUNT_PER_TICKET = ARJUN_RAMPAL_LIST_PRICE - ARJUN_
 /** List / sale prices for Junooni Tour ticket tiers (tier `price` in DB = list). */
 export const JUNOONI_TIER_PRICES = {
   'General Admission': { list: 50, sale: 45 },
-  VIP: { list: 75, sale: 60 },
+  VIP: { list: 75, sale: 65 },
   VVIP: { list: 150, sale: 125 },
 };
 
-export function junooniTierPricing(tierName) {
+export const JUNOONI_VVIP_DISPLAY_SUFFIX = '(Meet&Greet Included)';
+
+function junooniTierKey(tierName) {
   if (!tierName) return null;
-  const key = Object.keys(JUNOONI_TIER_PRICES).find(
-    (k) => k.toLowerCase() === String(tierName).trim().toLowerCase(),
-  );
+  const normalized = String(tierName).trim().toLowerCase();
+  return Object.keys(JUNOONI_TIER_PRICES).find(
+    (k) => normalized === k.toLowerCase() || normalized.startsWith(`${k.toLowerCase()} `),
+  ) || null;
+}
+
+export function junooniTierPricing(tierName) {
+  const key = junooniTierKey(tierName);
   return key ? JUNOONI_TIER_PRICES[key] : null;
+}
+
+/** Junooni VVIP label shown on event and checkout UI. */
+export function junooniTierDisplayName(event, tierName) {
+  if (!tierName) return tierName;
+  if (isJunooniTourEvent(event) && junooniTierKey(tierName) === 'VVIP') {
+    return `VVIP ${JUNOONI_VVIP_DISPLAY_SUFFIX}`;
+  }
+  return tierName;
 }
 
 export function isFarhanEvent(ev) {
