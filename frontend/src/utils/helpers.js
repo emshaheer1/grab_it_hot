@@ -107,7 +107,7 @@ export const ARJUN_RAMPAL_DISCOUNT_PER_TICKET = ARJUN_RAMPAL_LIST_PRICE - ARJUN_
 
 /** List / sale prices for Junooni Tour ticket tiers (tier `price` in DB = list). */
 export const JUNOONI_TIER_PRICES = {
-  'General Admission': { list: 40, sale: 35 },
+  'General Admission': { list: 40, sale: 30 },
   VIP: { list: 60, sale: 50 },
   VVIP: { list: 150, sale: 125 },
 };

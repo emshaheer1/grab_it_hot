@@ -3,7 +3,8 @@ import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
 import FarhanZellePricePair from '../components/FarhanZellePricePair';
-import { formatCurrency, formatEventLocationOneLine, formatEventSchedule, discountedEventUnitPrice, eventDiscountPerTicket, hasDirectPayDiscount, junooniTierDisplayName } from '../utils/helpers';
+import JunooniHalalFestEntryNotice from '../components/JunooniHalalFestEntryNotice';
+import { formatCurrency, formatEventLocationOneLine, formatEventSchedule, discountedEventUnitPrice, eventDiscountPerTicket, hasDirectPayDiscount, isJunooniTourEvent, junooniTierDisplayName } from '../utils/helpers';
 import { FaCalendarDays, FaLocationDot, FaTicket, FaXmark } from 'react-icons/fa6';
 
 const ZELLE_EMAIL = 'Payment@melodysounds.net';
@@ -192,6 +193,8 @@ const RequestTicketsPage = () => {
             </span>
           </div>
         </div>
+
+        {isJunooniTourEvent(event) ? <JunooniHalalFestEntryNotice style={{ marginBottom: 28 }} /> : null}
 
         <form onSubmit={openPaymentModal} style={{ background: 'white', borderRadius: 'var(--r-xl)', padding: '36px 32px', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-sm)' }}>
           <div className="form-field">
@@ -465,6 +468,8 @@ const RequestTicketsPage = () => {
                     in the memo or note field so we can confirm your tickets.
                   </p>
                 </div>
+
+                {isJunooniTourEvent(event) ? <JunooniHalalFestEntryNotice style={{ marginBottom: 22 }} /> : null}
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   <button
