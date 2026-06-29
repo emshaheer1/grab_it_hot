@@ -47,14 +47,14 @@ export const formatEventDate = (date) => {
 export const formatEventSchedule = (event) => {
   if (event?.dateComingSoon) return 'Coming soon';
   if (isJunooniTourEvent(event)) {
-    return 'Fri, Aug 14, 2026 · Gates 8:00 PM · Show 9:00 PM CDT';
+    return 'Sat, Aug 8, 2026 · Gates 6:30 PM · Show 7:30 PM CDT';
   }
   return formatEventDateTime(event?.date);
 };
 
 export const formatEventScheduleDate = (event) => {
   if (event?.dateComingSoon) return 'Coming soon';
-  if (isJunooniTourEvent(event)) return 'Fri, Aug 14, 2026';
+  if (isJunooniTourEvent(event)) return 'Sat, Aug 8, 2026';
   return formatEventDate(event?.date);
 };
 
@@ -107,8 +107,8 @@ export const ARJUN_RAMPAL_DISCOUNT_PER_TICKET = ARJUN_RAMPAL_LIST_PRICE - ARJUN_
 
 /** List / sale prices for Junooni Tour ticket tiers (tier `price` in DB = list). */
 export const JUNOONI_TIER_PRICES = {
-  'General Admission': { list: 50, sale: 45 },
-  VIP: { list: 75, sale: 65 },
+  'General Admission': { list: 40, sale: 35 },
+  VIP: { list: 60, sale: 50 },
   VVIP: { list: 150, sale: 125 },
 };
 

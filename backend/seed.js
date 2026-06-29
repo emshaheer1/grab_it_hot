@@ -12,31 +12,37 @@ const events = [
   {
     title: 'Junooni Tour — USA',
     description:
-      'JUNOONI TOUR — USA TOUR featuring Mustafa Zahid & Ali Azmat. Presented by Nexgen Polymers.\n\n' +
-      'Friday, August 14, 2026 at Aura Club Naperville, Chicago area. Gates open at 8:00 PM · Concert starts at 9:00 PM (US Central).\n\n' +
+      'JUNOONI TOUR — USA TOUR featuring Mustafa Zahid & Ali Azmat. Live at Chicagoland Halal Fest 2026!\n\n' +
+      'Saturday, August 8, 2026 at Kane County Fairgrounds, St. Charles, IL. Gates open at 6:30 PM · Concert starts at 7:30 PM (US Central).\n\n' +
+      'Culture. Community. Music. All in one night! Celebrate our heritage & traditions, connect with the community, and enjoy world-class music & cultural vibes.\n\n' +
+      'A night of music. A celebration of us. Junooni Tour live in concert! Bring your family. Bring your friends. Be part of something bigger.\n\n' +
       'Grab It Hot is proud to list this experience. When you book or request tickets here, you get clear information, careful handling of your details, and a straightforward path to confirmation.\n\n' +
-      'Booking & inquiries: Fawad — +1 (847) 909-3798\n' +
-      'Support: support@nexgenpolymers.com\n' +
-      'Official sponsor: Nexgen Polymers — www.nexgenpolymers.com',
+      'Booking & inquiries:\n' +
+      '• Fawad — (847) 909-3798\n' +
+      '• Zoya — (872) 212-2691\n' +
+      '• Masiha — (815) 241-1814\n' +
+      '• Farooq — (630) 999-5097\n\n' +
+      'Presented with support from MPS Melody Production & Sound, Nexgen Polymers, Illinois Muslim Chamber of Commerce, The Halal Group, and MFX Productions.\n' +
+      'www.ilmuslimchamber.org',
     category: 'Music',
-    date: new Date('2026-08-14T21:00:00-05:00'),
-    endDate: new Date('2026-08-15T01:30:00-05:00'),
+    date: new Date('2026-08-08T19:30:00-05:00'),
+    endDate: new Date('2026-08-09T00:00:00-05:00'),
     location: {
-      venue: 'Aura Club Naperville',
-      city: 'Naperville',
+      venue: 'Kane County Fairgrounds',
+      city: 'St. Charles',
       state: 'IL',
-      address: '808 South Route 59',
-      zipCode: '60540',
+      address: '525 S Randall Rd',
+      zipCode: '60174',
     },
     organizer: {
-      name: 'Nexgen Polymers',
+      name: 'Illinois Muslim Chamber of Commerce',
       email: 'support@nexgenpolymers.com',
       phone: '+1 (847) 909-3798',
     },
     image: '/uploads/junooni-tour-usa-2026.png',
     ticketTiers: [
-      { name: 'General Admission', price: 50, capacity: 800, description: 'GA floor · 21+' },
-      { name: 'VIP', price: 75, capacity: 200, description: 'VIP access · venue rules apply' },
+      { name: 'General Admission', price: 40, capacity: 800, description: 'GA floor · 21+' },
+      { name: 'VIP', price: 60, capacity: 200, description: 'VIP access · venue rules apply' },
       {
         name: 'VVIP (Meet&Greet Included)',
         price: 150,
@@ -47,7 +53,7 @@ const events = [
     featured: true,
     status: 'upcoming',
     dateComingSoon: false,
-    tags: ['Junooni', 'Mustafa Zahid', 'Ali Azmat', 'Naperville', 'Chicago', 'Nexgen Polymers'],
+    tags: ['Junooni', 'Mustafa Zahid', 'Ali Azmat', 'Halal Fest', 'St. Charles', 'Chicago', 'Kane County Fairgrounds'],
   },
   {
     title: 'Farhan Live in Chicago',
