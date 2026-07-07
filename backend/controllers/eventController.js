@@ -151,7 +151,22 @@ exports.updateEvent = async (req, res, next) => {
     }
 
     if (Array.isArray(body.ticketTiers)) {
-      event.ticketTiers = body.ticketTiers;
+      event.ticketTiers = body.ticketTiers.map((incoming) => {
+        const existing = incoming._id ? event.ticketTiers.id(incoming._id) : null;
+        const saleRaw = incoming.salePrice;
+        const salePrice =
+          saleRaw === '' || saleRaw == null || Number.isNaN(Number(saleRaw)) ? undefined : Number(saleRaw);
+        const tier = {
+          name: incoming.name ?? existing?.name,
+          price: Number(incoming.price),
+          salePrice,
+          capacity: Number(incoming.capacity ?? existing?.capacity ?? 0),
+          sold: existing?.sold ?? Number(incoming.sold) ?? 0,
+          description: incoming.description ?? existing?.description,
+        };
+        if (incoming._id) tier._id = incoming._id;
+        return tier;
+      });
     }
 
     await event.save();

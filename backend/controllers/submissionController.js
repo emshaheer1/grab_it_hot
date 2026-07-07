@@ -5,7 +5,6 @@ const { sendMail } = require('../utils/mailTransport');
 const ContactMessage = require('../models/ContactMessage');
 const TicketRequest = require('../models/TicketRequest');
 const { sendTicketRequestAdminAlert } = require('../utils/adminAlerts');
-const { isJunooniTourEvent, HALAL_FEST_ENTRY_NOTICE_TEXT, halalFestEntryNoticeHtml } = require('../utils/junooniEvent');
 
 function escapeHtml(s) {
   if (s == null) return '';
@@ -51,8 +50,6 @@ async function sendTicketRequestThankYouEmail({ toEmail, fullName, eventTitle, o
     const safeEmail = escapeHtml(toEmail);
     const safeTier = escapeHtml(tierName);
     const safeTotal = escapeHtml(totalDisplay || '—');
-    const junooniNoticeHtml = isJunooniTourEvent(eventTitle) ? halalFestEntryNoticeHtml() : '';
-    const junooniNoticeText = isJunooniTourEvent(eventTitle) ? `\n\n${HALAL_FEST_ENTRY_NOTICE_TEXT}` : '';
 
     const logoCell = logoExists
       ? `<td style="vertical-align:middle;padding-right:14px"><img src="cid:${TICKET_REQUEST_EMAIL_LOGO_CID}" alt="" width="48" height="48" style="display:block;border:0;line-height:0" /></td>`
@@ -78,7 +75,6 @@ async function sendTicketRequestThankYouEmail({ toEmail, fullName, eventTitle, o
             We will verify your payment using your order ID <strong>${safeOrder}</strong>.
             After verification, your tickets will be sent to <strong>${safeEmail}</strong>.
           </p>
-          ${junooniNoticeHtml}
           <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin-top:36px;border-top:1px solid #e8e8e8;padding-top:28px">
             <tr>
               <td align="center" style="padding:0">
@@ -103,7 +99,6 @@ async function sendTicketRequestThankYouEmail({ toEmail, fullName, eventTitle, o
         `Order ID: ${orderId || '—'}`,
         '',
         `We will verify your payment using your order ID ${orderId || '—'}. After verification, your tickets will be sent to ${toEmail}.`,
-        junooniNoticeText,
         '',
         'Grab It Hot',
       ].join('\n'),

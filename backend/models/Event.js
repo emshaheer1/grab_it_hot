@@ -2,7 +2,10 @@ const mongoose = require('mongoose');
 
 const TicketTierSchema = new mongoose.Schema({
   name: { type: String, required: true },
+  /** List / strikethrough price shown on the site */
   price: { type: Number, required: true },
+  /** Optional sale price — when set, customers pay this instead of `price` */
+  salePrice: { type: Number },
   capacity: { type: Number, required: true },
   sold: { type: Number, default: 0 },
   description: { type: String },
@@ -46,7 +49,12 @@ const EventSchema = new mongoose.Schema(
 
 EventSchema.virtual('minPrice').get(function () {
   if (!this.ticketTiers || this.ticketTiers.length === 0) return 0;
-  return Math.min(...this.ticketTiers.map((t) => t.price));
+  return Math.min(
+    ...this.ticketTiers.map((t) => {
+      const sale = t.salePrice != null ? Number(t.salePrice) : NaN;
+      return !Number.isNaN(sale) ? sale : t.price;
+    }),
+  );
 });
 
 EventSchema.virtual('totalCapacity').get(function () {

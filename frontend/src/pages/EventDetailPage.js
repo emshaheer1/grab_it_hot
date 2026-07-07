@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import FarhanZellePricePair from '../components/FarhanZellePricePair';
-import JunooniHalalFestEntryNotice from '../components/JunooniHalalFestEntryNotice';
-import { formatEventSchedule, formatCurrency, formatEventLocationOneLine, getCategoryIcon, hasDirectPayDiscount, isJunooniTourEvent, junooniTierDisplayName, resolveEventImageUrl, splitGrabItHotClosing } from '../utils/helpers';
+import { formatEventSchedule, formatCurrency, formatEventLocationOneLine, getCategoryIcon, hasDirectPayDiscount, junooniTierDisplayName, resolveEventImageUrl, splitGrabItHotClosing } from '../utils/helpers';
 import {
   FaCalendarDays,
   FaLocationDot,
@@ -320,10 +319,6 @@ const EventDetailPage = () => {
                   </span>
                 </div>
               )}
-
-              {isJunooniTourEvent(event) && !ticketsClosed ? (
-                <JunooniHalalFestEntryNotice style={{ marginBottom: 20 }} />
-              ) : null}
 
               <button
                 type="button"

@@ -4,12 +4,9 @@ const User = require('../models/User');
 const { formatEventLocationOneLine } = require('../utils/formatEventLocationOneLine');
 const { sendMail } = require('../utils/mailTransport');
 const { sendBookingAdminAlert } = require('../utils/adminAlerts');
-const { isJunooniTourEvent, HALAL_FEST_ENTRY_NOTICE_TEXT, halalFestEntryNoticeHtml } = require('../utils/junooniEvent');
 
 const sendConfirmationEmail = async (booking, event) => {
   try {
-    const junooniNoticeHtml = isJunooniTourEvent(event) ? halalFestEntryNoticeHtml() : '';
-    const junooniNoticeText = isJunooniTourEvent(event) ? `\n\n${HALAL_FEST_ENTRY_NOTICE_TEXT}` : '';
     return sendMail({
       to: booking.attendeeInfo.email,
       subject: `Booking Confirmed – ${event.title}`,
@@ -26,7 +23,6 @@ const sendConfirmationEmail = async (booking, event) => {
             <tr><td style="padding:8px;background:#f7f7f7"><strong>Ticket</strong></td><td style="padding:8px">${booking.ticketTier.name} x ${booking.quantity}</td></tr>
             <tr><td style="padding:8px;background:#f7f7f7"><strong>Total Paid</strong></td><td style="padding:8px">$${booking.totalAmount}</td></tr>
           </table>
-          ${junooniNoticeHtml}
           <p style="color:#888;font-size:13px">Present this booking ID at the venue entrance.</p>
           <p style="color:#FF4D4D;font-weight:bold">Grab It Hot 🔥</p>
         </div>
@@ -39,7 +35,6 @@ const sendConfirmationEmail = async (booking, event) => {
         `Booking ID: ${booking.bookingId}`,
         `Ticket: ${booking.ticketTier.name} x ${booking.quantity}`,
         `Total Paid: $${booking.totalAmount}`,
-        junooniNoticeText,
         '',
         'Present this booking ID at the venue entrance.',
         '',

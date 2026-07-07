@@ -41,11 +41,12 @@ const events = [
     },
     image: '/uploads/junooni-tour-usa-2026.png',
     ticketTiers: [
-      { name: 'General Admission', price: 40, capacity: 800, description: 'GA floor · 21+' },
-      { name: 'VIP', price: 60, capacity: 200, description: 'VIP access · venue rules apply' },
+      { name: 'General Admission', price: 45, salePrice: 40, capacity: 800, description: 'GA floor · 21+' },
+      { name: 'VIP', price: 75, salePrice: 70, capacity: 200, description: 'VIP access · venue rules apply' },
       {
         name: 'VVIP (Meet&Greet Included)',
         price: 150,
+        salePrice: 125,
         capacity: 80,
         description: 'VVIP · Meet & Greet included · limited availability',
       },

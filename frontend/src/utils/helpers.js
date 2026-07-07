@@ -105,14 +105,41 @@ export const ARJUN_RAMPAL_LIST_PRICE = 99;
 export const ARJUN_RAMPAL_SALE_PRICE = 75;
 export const ARJUN_RAMPAL_DISCOUNT_PER_TICKET = ARJUN_RAMPAL_LIST_PRICE - ARJUN_RAMPAL_SALE_PRICE;
 
-/** List / sale prices for Junooni Tour ticket tiers (tier `price` in DB = list). */
+/** List / sale prices for Junooni Tour ticket tiers — fallback when `salePrice` is not in DB. */
 export const JUNOONI_TIER_PRICES = {
-  'General Admission': { list: 40, sale: 30 },
-  VIP: { list: 60, sale: 50 },
+  'General Admission': { list: 45, sale: 40 },
+  VIP: { list: 75, sale: 70 },
   VVIP: { list: 150, sale: 125 },
 };
 
 export const JUNOONI_VVIP_DISPLAY_SUFFIX = '(Meet&Greet Included)';
+
+function findEventTier(event, tierName, listPrice) {
+  if (!event?.ticketTiers?.length) return null;
+  if (tierName) {
+    const byName = event.ticketTiers.find((t) => t.name === tierName);
+    if (byName) return byName;
+  }
+  if (listPrice != null && listPrice !== '') {
+    const n = Number(listPrice);
+    if (!Number.isNaN(n)) {
+      return event.ticketTiers.find((t) => Number(t.price) === n) || null;
+    }
+  }
+  return null;
+}
+
+/** Pricing from tier DB fields (`price` = list, `salePrice` = sale). */
+export function tierPricingFromDb(tier) {
+  if (!tier) return null;
+  const list = Number(tier.price);
+  if (Number.isNaN(list)) return null;
+  const saleRaw = tier.salePrice;
+  if (saleRaw != null && saleRaw !== '' && !Number.isNaN(Number(saleRaw))) {
+    return { list, sale: Number(saleRaw) };
+  }
+  return null;
+}
 
 function junooniTierKey(tierName) {
   if (!tierName) return null;
@@ -158,7 +185,10 @@ export function isHomeFeaturedEvent(ev) {
   return isJunooniTourEvent(ev);
 }
 
-export function eventDiscountPerTicket(event, tierName) {
+export function eventDiscountPerTicket(event, tierName, listPrice) {
+  const tier = findEventTier(event, tierName, listPrice);
+  const dbPricing = tierPricingFromDb(tier);
+  if (dbPricing) return Math.max(0, dbPricing.list - dbPricing.sale);
   const junooni = isJunooniTourEvent(event) && tierName ? junooniTierPricing(tierName) : null;
   if (junooni) return junooni.list - junooni.sale;
   if (isArjunRampalEvent(event)) return ARJUN_RAMPAL_DISCOUNT_PER_TICKET;
@@ -167,11 +197,18 @@ export function eventDiscountPerTicket(event, tierName) {
 }
 
 export function hasDirectPayDiscount(event) {
+  if (event?.ticketTiers?.some((t) => {
+    const p = tierPricingFromDb(t);
+    return p && p.sale < p.list;
+  })) return true;
   if (isJunooniTourEvent(event)) return true;
   return eventDiscountPerTicket(event) > 0;
 }
 
 export function discountedEventUnitPrice(event, listPrice, tierName) {
+  const tier = findEventTier(event, tierName, listPrice);
+  const dbPricing = tierPricingFromDb(tier);
+  if (dbPricing) return dbPricing.sale;
   const junooni = isJunooniTourEvent(event) && tierName ? junooniTierPricing(tierName) : null;
   if (junooni) return junooni.sale;
   if (isJunooniTourEvent(event)) {
@@ -181,11 +218,18 @@ export function discountedEventUnitPrice(event, listPrice, tierName) {
   }
   const n = Number(listPrice);
   if (Number.isNaN(n)) return 0;
-  return Math.max(0, n - eventDiscountPerTicket(event, tierName));
+  return Math.max(0, n - eventDiscountPerTicket(event, tierName, listPrice));
 }
 
-/** Lowest sale price for event cards (Junooni uses tier sale table, not flat discount). */
+/** Lowest sale price for event cards. */
 export function eventCardFromPrice(event) {
+  const dbTiers = (event?.ticketTiers || []).map((t) => tierPricingFromDb(t)).filter(Boolean);
+  if (dbTiers.length) {
+    return {
+      list: Math.min(...dbTiers.map((p) => p.list)),
+      sale: Math.min(...dbTiers.map((p) => p.sale)),
+    };
+  }
   if (isJunooniTourEvent(event)) {
     const tiers = Object.values(JUNOONI_TIER_PRICES);
     return {

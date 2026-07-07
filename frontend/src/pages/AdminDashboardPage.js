@@ -8,6 +8,7 @@ import {
   formatDateTime,
   formatEventSchedule,
   formatEventLocationOneLine,
+  formatCurrency,
   eventDateToDatetimeLocalValue,
   datetimeLocalValueToEventIso,
   resolveEventImageUrl,
@@ -72,6 +73,7 @@ const AdminDashboardPage = () => {
     state: '',
     featured: false,
     dateComingSoon: false,
+    ticketTiers: [],
   });
 
   const loadDashboard = async () => {
@@ -166,7 +168,25 @@ const AdminDashboardPage = () => {
       state: event.location?.state || '',
       featured: Boolean(event.featured),
       dateComingSoon: Boolean(event.dateComingSoon),
+      ticketTiers: (event.ticketTiers || []).map((t) => ({
+        _id: t._id,
+        name: t.name || '',
+        price: t.price ?? '',
+        salePrice: t.salePrice ?? '',
+        capacity: t.capacity ?? 0,
+        sold: t.sold ?? 0,
+        description: t.description || '',
+      })),
     });
+  };
+
+  const updateEventTierField = (tierId, field, value) => {
+    setEventEditForm((prev) => ({
+      ...prev,
+      ticketTiers: prev.ticketTiers.map((tier) => (
+        tier._id === tierId ? { ...tier, [field]: value } : tier
+      )),
+    }));
   };
 
   const cancelEditEvent = () => {
@@ -181,10 +201,29 @@ const AdminDashboardPage = () => {
       state: '',
       featured: false,
       dateComingSoon: false,
+      ticketTiers: [],
     });
   };
 
   const saveEditedEvent = async (eventId) => {
+    for (const tier of eventEditForm.ticketTiers) {
+      const list = Number(tier.price);
+      const hasSale = tier.salePrice !== '' && tier.salePrice != null;
+      const sale = hasSale ? Number(tier.salePrice) : list;
+      if (Number.isNaN(list) || list < 0) {
+        toast.error(`Invalid cut price for ${tier.name || 'ticket tier'}`);
+        return;
+      }
+      if (hasSale && (Number.isNaN(sale) || sale < 0)) {
+        toast.error(`Invalid sale price for ${tier.name || 'ticket tier'}`);
+        return;
+      }
+      if (hasSale && sale > list) {
+        toast.error(`Sale price cannot be higher than cut price for ${tier.name || 'ticket tier'}`);
+        return;
+      }
+    }
+
     setSavingEvent(true);
     try {
       const dateIso = datetimeLocalValueToEventIso(eventEditForm.date);
@@ -199,6 +238,15 @@ const AdminDashboardPage = () => {
           city: eventEditForm.city,
           state: eventEditForm.state,
         },
+        ticketTiers: eventEditForm.ticketTiers.map((tier) => ({
+          _id: tier._id,
+          name: tier.name,
+          price: Number(tier.price),
+          salePrice: tier.salePrice === '' || tier.salePrice == null ? undefined : Number(tier.salePrice),
+          capacity: tier.capacity,
+          sold: tier.sold,
+          description: tier.description,
+        })),
       };
       if (dateIso !== undefined) payload.date = dateIso;
       await api.put(`/events/${eventId}`, payload);
@@ -672,6 +720,79 @@ const AdminDashboardPage = () => {
                               Date/time: Coming soon
                             </label>
                           </div>
+
+                          {eventEditForm.ticketTiers.length > 0 ? (
+                            <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border-light)' }}>
+                              <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 10, color: 'var(--ink)' }}>
+                                Ticket prices
+                              </div>
+                              <p style={{ margin: '0 0 12px', fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                                Cut price is shown struck through on the site. Sale price is what customers pay.
+                              </p>
+                              <div style={{ display: 'grid', gap: 12 }}>
+                                {eventEditForm.ticketTiers.map((tier) => (
+                                  <div
+                                    key={tier._id}
+                                    style={{
+                                      display: 'grid',
+                                      gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))',
+                                      gap: 10,
+                                      alignItems: 'end',
+                                      padding: '12px 14px',
+                                      borderRadius: 10,
+                                      border: '1px solid var(--border-light)',
+                                      background: 'white',
+                                    }}
+                                  >
+                                    <div style={{ gridColumn: '1 / -1', fontWeight: 600, fontSize: 14, color: 'var(--ink)' }}>
+                                      {tier.name}
+                                      {tier.capacity ? (
+                                        <span style={{ fontWeight: 500, color: 'var(--text-muted)', marginLeft: 8, fontSize: 12 }}>
+                                          ({Math.max(0, tier.capacity - (tier.sold || 0))} left)
+                                        </span>
+                                      ) : null}
+                                    </div>
+                                    <label style={{ display: 'grid', gap: 6, fontSize: 12, color: 'var(--text-secondary)' }}>
+                                      Cut price ($)
+                                      <input
+                                        className="form-input"
+                                        type="number"
+                                        min={0}
+                                        step={1}
+                                        value={tier.price}
+                                        onChange={(e) => updateEventTierField(tier._id, 'price', e.target.value)}
+                                      />
+                                    </label>
+                                    <label style={{ display: 'grid', gap: 6, fontSize: 12, color: 'var(--text-secondary)' }}>
+                                      Sale price ($)
+                                      <input
+                                        className="form-input"
+                                        type="number"
+                                        min={0}
+                                        step={1}
+                                        value={tier.salePrice}
+                                        placeholder={tier.price === '' ? 'Same as cut price' : String(tier.price)}
+                                        onChange={(e) => updateEventTierField(tier._id, 'salePrice', e.target.value)}
+                                      />
+                                    </label>
+                                    <div style={{ fontSize: 13, color: 'var(--text-muted)', paddingBottom: 10 }}>
+                                      {tier.salePrice !== '' && tier.salePrice != null && Number(tier.salePrice) < Number(tier.price) ? (
+                                        <>
+                                          Preview:{' '}
+                                          <span style={{ textDecoration: 'line-through' }}>{formatCurrency(tier.price)}</span>
+                                          {' → '}
+                                          <strong style={{ color: 'var(--flame)' }}>{formatCurrency(tier.salePrice)}</strong>
+                                        </>
+                                      ) : (
+                                        <>Preview: <strong>{formatCurrency(tier.price || 0)}</strong></>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ) : null}
+
                           <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
                             <button type="button" className="btn btn-primary" disabled={savingEvent} onClick={() => saveEditedEvent(event._id)} style={{ padding: '8px 14px', fontSize: 13 }}>{savingEvent ? 'Saving...' : 'Save changes'}</button>
                             <button type="button" className="btn btn-outline" onClick={cancelEditEvent} style={{ padding: '8px 14px', fontSize: 13 }}><FaXmark /> Cancel</button>
