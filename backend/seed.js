@@ -10,7 +10,7 @@ const { getAdminEmail, getAdminPassword } = require('./config/adminCredentials')
 
 const events = [
   {
-    title: 'Junooni Tour — USA',
+    title: 'Junooni Tour — Chicago, IL',
     description:
       'JUNOONI TOUR — USA TOUR featuring Mustafa Zahid & Ali Azmat. Live at Chicagoland Halal Fest 2026!\n\n' +
       'Saturday, August 8, 2026 at Kane County Fairgrounds, St. Charles, IL. Gates open at 6:30 PM · Concert starts at 7:30 PM (US Central).\n\n' +
@@ -55,6 +55,43 @@ const events = [
     status: 'upcoming',
     dateComingSoon: false,
     tags: ['Junooni', 'Mustafa Zahid', 'Ali Azmat', 'Halal Fest', 'St. Charles', 'Chicago', 'Kane County Fairgrounds'],
+  },
+  {
+    title: 'Junooni Tour - Dallas Texas',
+    description:
+      'JUNOONI TOUR — Pakistan Independence Day Live in Concert featuring Mustafa Zahid & Ali Azmat.\n\n' +
+      'Saturday, August 15, 2026 at Grand Center, Plano, TX. Gates open at 8:00 PM · Concert starts at 8:30 PM (US Central).\n\n' +
+      'Celebrate Pakistan Independence Day with a night of live music from Mustafa Zahid and Ali Azmat.\n\n' +
+      'Grab It Hot is proud to list this experience. When you book or request tickets here, you get clear information, careful handling of your details, and a straightforward path to confirmation.\n\n' +
+      'Booking & inquiries:\n' +
+      '• Nasir Siddiqi — (214) 837-5055\n' +
+      '• Farooq — (630) 999-5097\n\n' +
+      'Presented by Nasir Siddiqi Presentation, Hiba Entertainment, MFX Productions, and MPS Melody Production & Sound.\n' +
+      'Sponsors: Omar Khawaja Personal Injury Lawyers and Nexgen Polymers Inc.',
+    category: 'Music',
+    date: new Date('2026-08-15T20:30:00-05:00'),
+    endDate: new Date('2026-08-16T01:00:00-05:00'),
+    location: {
+      venue: 'Grand Center',
+      city: 'Plano',
+      state: 'TX',
+      address: '300 Chisholm Pl',
+      zipCode: '75075',
+    },
+    organizer: {
+      name: 'Nasir Siddiqi Presentation & Hiba Entertainment',
+      phone: '+1 (214) 837-5055',
+    },
+    image: '/uploads/junooni-tour-dallas-2026.png',
+    ticketTiers: [
+      { name: 'VVIP (Meet & Greet)', price: 199, capacity: 40, description: 'Front row · Meet & Greet included' },
+      { name: 'VIP', price: 99, capacity: 120, description: 'Rows 2–4 seating' },
+      { name: 'General Admission', price: 50, capacity: 600, description: 'General seating' },
+    ],
+    featured: true,
+    status: 'upcoming',
+    dateComingSoon: false,
+    tags: ['Junooni', 'Mustafa Zahid', 'Ali Azmat', 'Dallas', 'Plano', 'Texas', 'Pakistan Independence Day', 'Grand Center'],
   },
   {
     title: 'Farhan Live in Chicago',

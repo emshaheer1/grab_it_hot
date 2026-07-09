@@ -148,6 +148,7 @@ input, textarea, select { font-family: var(--font-body); }
 .event-card__img-wrap { position: relative; height: 224px; overflow: hidden; }
 .event-card__img { width: 100%; height: 100%; object-fit: cover; object-position: center; transition: transform 0.6s var(--ease-out); }
 .event-card__img--top { object-position: top center; }
+.event-card__img--artists { object-position: center 35%; }
 .event-card__overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(10,10,10,0.5) 0%, transparent 55%); }
 
 .event-card__cat-badge {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { eventCardFromPrice, formatCurrency, formatEventLocationOneLine, formatEventScheduleDate, getCategoryIcon, getEventMonthDayParts, hasDirectPayDiscount, isJunooniTourEvent, resolveEventImageUrl } from '../utils/helpers';
+import { eventCardFromPrice, formatCurrency, formatEventLocationOneLine, formatEventScheduleDate, getCategoryIcon, getEventMonthDayParts, hasDirectPayDiscount, isJunooniChicagoEvent, isJunooniDallasEvent, resolveEventImageUrl } from '../utils/helpers';
 import FarhanZellePricePair from './FarhanZellePricePair';
 import { FaCalendarDays, FaLocationDot } from 'react-icons/fa6';
 
@@ -9,12 +9,17 @@ const EventCard = ({ event, style }) => {
   const showStrikePrice = hasDirectPayDiscount(event) && cardSalePrice < cardListPrice;
   const { month, day } = event.dateComingSoon ? { month: '', day: '' } : getEventMonthDayParts(event.date);
   const CategoryIcon = getCategoryIcon(event.category);
+  const imgPositionClass = isJunooniDallasEvent(event)
+    ? ' event-card__img--artists'
+    : isJunooniChicagoEvent(event)
+      ? ' event-card__img--top'
+      : '';
 
   return (
     <Link to={`/events/${event._id}`} className="event-card" style={style}>
       <div className="event-card__img-wrap">
         <img
-          className={`event-card__img${isJunooniTourEvent(event) ? ' event-card__img--top' : ''}`}
+          className={`event-card__img${imgPositionClass}`}
           src={resolveEventImageUrl(event.image)}
           alt={event.title}
           onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800'; }}

@@ -9,6 +9,14 @@ export function isJunooniTourEvent(ev) {
   return Boolean(ev && /junooni/i.test(String(ev.title || '')));
 }
 
+export function isJunooniChicagoEvent(ev) {
+  return isJunooniTourEvent(ev) && /chicago/i.test(String(ev.title || ''));
+}
+
+export function isJunooniDallasEvent(ev) {
+  return isJunooniTourEvent(ev) && /dallas/i.test(String(ev.title || ''));
+}
+
 export const formatDate = (date) => {
   try { return format(new Date(date), 'EEE, MMM d, yyyy'); }
   catch { return date; }
@@ -46,15 +54,19 @@ export const formatEventDate = (date) => {
 /** Full event — uses `dateComingSoon` from API when set */
 export const formatEventSchedule = (event) => {
   if (event?.dateComingSoon) return 'Coming soon';
-  if (isJunooniTourEvent(event)) {
+  if (isJunooniChicagoEvent(event)) {
     return 'Sat, Aug 8, 2026 · Gates 6:30 PM · Show 7:30 PM CDT';
+  }
+  if (isJunooniDallasEvent(event)) {
+    return 'Sat, Aug 15, 2026 · Gates 8:00 PM · Show 8:30 PM CDT';
   }
   return formatEventDateTime(event?.date);
 };
 
 export const formatEventScheduleDate = (event) => {
   if (event?.dateComingSoon) return 'Coming soon';
-  if (isJunooniTourEvent(event)) return 'Sat, Aug 8, 2026';
+  if (isJunooniChicagoEvent(event)) return 'Sat, Aug 8, 2026';
+  if (isJunooniDallasEvent(event)) return 'Sat, Aug 15, 2026';
   return formatEventDate(event?.date);
 };
 
@@ -157,7 +169,7 @@ export function junooniTierPricing(tierName) {
 /** Junooni VVIP label shown on event and checkout UI. */
 export function junooniTierDisplayName(event, tierName) {
   if (!tierName) return tierName;
-  if (isJunooniTourEvent(event) && junooniTierKey(tierName) === 'VVIP') {
+  if (isJunooniChicagoEvent(event) && junooniTierKey(tierName) === 'VVIP') {
     return `VVIP ${JUNOONI_VVIP_DISPLAY_SUFFIX}`;
   }
   return tierName;
@@ -189,7 +201,7 @@ export function eventDiscountPerTicket(event, tierName, listPrice) {
   const tier = findEventTier(event, tierName, listPrice);
   const dbPricing = tierPricingFromDb(tier);
   if (dbPricing) return Math.max(0, dbPricing.list - dbPricing.sale);
-  const junooni = isJunooniTourEvent(event) && tierName ? junooniTierPricing(tierName) : null;
+  const junooni = isJunooniChicagoEvent(event) && tierName ? junooniTierPricing(tierName) : null;
   if (junooni) return junooni.list - junooni.sale;
   if (isArjunRampalEvent(event)) return ARJUN_RAMPAL_DISCOUNT_PER_TICKET;
   if (isFarhanEvent(event) || isDjChetasEvent(event)) return DIRECT_PAY_DISCOUNT_PER_TICKET;
@@ -201,7 +213,7 @@ export function hasDirectPayDiscount(event) {
     const p = tierPricingFromDb(t);
     return p && p.sale < p.list;
   })) return true;
-  if (isJunooniTourEvent(event)) return true;
+  if (isJunooniChicagoEvent(event)) return true;
   return eventDiscountPerTicket(event) > 0;
 }
 
@@ -209,9 +221,9 @@ export function discountedEventUnitPrice(event, listPrice, tierName) {
   const tier = findEventTier(event, tierName, listPrice);
   const dbPricing = tierPricingFromDb(tier);
   if (dbPricing) return dbPricing.sale;
-  const junooni = isJunooniTourEvent(event) && tierName ? junooniTierPricing(tierName) : null;
+  const junooni = isJunooniChicagoEvent(event) && tierName ? junooniTierPricing(tierName) : null;
   if (junooni) return junooni.sale;
-  if (isJunooniTourEvent(event)) {
+  if (isJunooniChicagoEvent(event)) {
     const n = Number(listPrice);
     const byList = Object.values(JUNOONI_TIER_PRICES).find((p) => p.list === n);
     if (byList) return byList.sale;
@@ -230,7 +242,7 @@ export function eventCardFromPrice(event) {
       sale: Math.min(...dbTiers.map((p) => p.sale)),
     };
   }
-  if (isJunooniTourEvent(event)) {
+  if (isJunooniChicagoEvent(event)) {
     const tiers = Object.values(JUNOONI_TIER_PRICES);
     return {
       list: Math.min(...tiers.map((p) => p.list)),

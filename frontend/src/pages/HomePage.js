@@ -189,7 +189,7 @@ const HomePage = () => {
 
   const tickerEvents = featured.length
     ? featured.map((event) => event.title)
-    : ['Junooni Tour — USA'];
+    : ['Junooni Tour — Chicago, IL', 'Junooni Tour - Dallas Texas'];
 
   const TICKER_SLOTS_PER_HALF = 18;
   const tickerHalf = Array.from({ length: TICKER_SLOTS_PER_HALF }, (_, i) => tickerEvents[i % tickerEvents.length]);
