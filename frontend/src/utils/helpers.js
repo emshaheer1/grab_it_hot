@@ -17,6 +17,10 @@ export function isJunooniDallasEvent(ev) {
   return isJunooniTourEvent(ev) && /dallas/i.test(String(ev.title || ''));
 }
 
+export function isJunooniNewJerseyEvent(ev) {
+  return isJunooniTourEvent(ev) && /new\s*jersey|elizabeth|nj\b/i.test(String(ev.title || ''));
+}
+
 export const formatDate = (date) => {
   try { return format(new Date(date), 'EEE, MMM d, yyyy'); }
   catch { return date; }
@@ -60,6 +64,9 @@ export const formatEventSchedule = (event) => {
   if (isJunooniDallasEvent(event)) {
     return 'Sat, Aug 15, 2026 · Gates 8:00 PM · Show 8:30 PM CDT';
   }
+  if (isJunooniNewJerseyEvent(event)) {
+    return 'Fri, Aug 14, 2026 · Gates 8:00 PM · Show 8:30 PM EDT';
+  }
   return formatEventDateTime(event?.date);
 };
 
@@ -67,6 +74,7 @@ export const formatEventScheduleDate = (event) => {
   if (event?.dateComingSoon) return 'Coming soon';
   if (isJunooniChicagoEvent(event)) return 'Sat, Aug 8, 2026';
   if (isJunooniDallasEvent(event)) return 'Sat, Aug 15, 2026';
+  if (isJunooniNewJerseyEvent(event)) return 'Fri, Aug 14, 2026';
   return formatEventDate(event?.date);
 };
 

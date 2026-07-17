@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { eventCardFromPrice, formatCurrency, formatEventLocationOneLine, formatEventScheduleDate, getCategoryIcon, getEventMonthDayParts, hasDirectPayDiscount, isJunooniChicagoEvent, isJunooniDallasEvent, resolveEventImageUrl } from '../utils/helpers';
+import { eventCardFromPrice, formatCurrency, formatEventLocationOneLine, formatEventScheduleDate, getCategoryIcon, getEventMonthDayParts, hasDirectPayDiscount, isJunooniChicagoEvent, isJunooniDallasEvent, isJunooniNewJerseyEvent, resolveEventImageUrl } from '../utils/helpers';
 import FarhanZellePricePair from './FarhanZellePricePair';
 import { FaCalendarDays, FaLocationDot } from 'react-icons/fa6';
 
@@ -9,7 +9,7 @@ const EventCard = ({ event, style }) => {
   const showStrikePrice = hasDirectPayDiscount(event) && cardSalePrice < cardListPrice;
   const { month, day } = event.dateComingSoon ? { month: '', day: '' } : getEventMonthDayParts(event.date);
   const CategoryIcon = getCategoryIcon(event.category);
-  const imgPositionClass = isJunooniDallasEvent(event)
+  const imgPositionClass = (isJunooniDallasEvent(event) || isJunooniNewJerseyEvent(event))
     ? ' event-card__img--artists'
     : isJunooniChicagoEvent(event)
       ? ' event-card__img--top'

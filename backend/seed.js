@@ -94,6 +94,41 @@ const events = [
     tags: ['Junooni', 'Mustafa Zahid', 'Ali Azmat', 'Dallas', 'Plano', 'Texas', 'Pakistan Independence Day', 'Grand Center'],
   },
   {
+    title: 'Junooni Tour - New Jersey',
+    description:
+      'JUNOONI TOUR featuring Mustafa Zahid & Ali Azmat — live in New Jersey.\n\n' +
+      'Friday, August 14, 2026 at Ritz Theatre & Performing Arts Center, Elizabeth, NJ. Gates open at 8:00 PM · Concert starts at 8:30 PM (US Eastern).\n\n' +
+      'Grab It Hot is proud to list this experience. When you book or request tickets here, you get clear information, careful handling of your details, and a straightforward path to confirmation.\n\n' +
+      'Booking & inquiries:\n' +
+      '• Arif Khan — (646) 393-6994\n' +
+      '• Farooq — (630) 999-5097\n\n' +
+      'Presented with support from The Musik World, MPS Melody Production & Sound, MFX Productions, and Nexgen Polymers.',
+    category: 'Music',
+    date: new Date('2026-08-14T20:30:00-04:00'),
+    endDate: new Date('2026-08-15T01:00:00-04:00'),
+    location: {
+      venue: 'Ritz Theatre & Performing Arts Center',
+      city: 'Elizabeth',
+      state: 'NJ',
+      address: '1148 E Jersey St',
+      zipCode: '07201',
+    },
+    organizer: {
+      name: 'The Musik World & MFX Productions',
+      phone: '+1 (646) 393-6994',
+    },
+    image: '/uploads/junooni-tour-new-jersey-2026.png',
+    ticketTiers: [
+      { name: 'VVIP (Meet & Greet)', price: 199, capacity: 40, description: 'Front row · Meet & Greet included' },
+      { name: 'VIP', price: 99, capacity: 120, description: 'Rows 2–4 seating' },
+      { name: 'General Admission', price: 50, capacity: 600, description: 'General seating' },
+    ],
+    featured: true,
+    status: 'upcoming',
+    dateComingSoon: false,
+    tags: ['Junooni', 'Mustafa Zahid', 'Ali Azmat', 'New Jersey', 'Elizabeth', 'Ritz Theatre'],
+  },
+  {
     title: 'Farhan Live in Chicago',
     description:
       'Farhan Saeed live in Chicago — Friday, April 24, 2026 at 7:00 PM (US Central) at NUR LOFT, Addison. Presented by MFX Productions in association with M Events and Marketing. National promoter: WO ADVERTISING.\n\n' +
