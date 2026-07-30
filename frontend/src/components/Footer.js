@@ -77,9 +77,9 @@ const Footer = () => (
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: 22 }}>Get in Touch</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 28 }}>
             {[
-              [<FaLocationDot />, '123 Event Ave, New York, NY 10001'],
-              [<FaPhone />, '+1 (800) 123-4567'],
-              [<FaEnvelope />, 'hello@grabit-hot.com'],
+              [<FaLocationDot />, '622 Northwest Hwy, Des Plaines, IL 60016'],
+              [<FaPhone />, '+1 (773) 615-0279'],
+              [<FaEnvelope />, 'payment@melodysounds.net'],
             ].map(([icon, text]) => (
               <div key={text} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                 <span style={{ fontSize: 14, marginTop: 1 }}>{icon}</span>

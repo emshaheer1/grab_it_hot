@@ -99,7 +99,7 @@ const RequestTicketsPage = () => {
     const t = event.ticketTiers.find((x) => x._id === tierId);
     if (!t) return;
     const avail = Math.max(0, t.capacity - t.sold);
-    if (avail > 0 && quantity > avail) setQuantity(avail);
+    if (avail > 0 && Number(quantity) > avail) setQuantity(avail);
   }, [event, tierId, quantity]);
 
   const openPaymentModal = (e) => {
@@ -118,9 +118,12 @@ const RequestTicketsPage = () => {
     setSubmitting(true);
     try {
       const tierNow = event.ticketTiers?.find((t) => t._id === tierId);
-      const listTotal = tierNow ? tierNow.price * quantity : 0;
+      const avail = tierNow ? Math.max(0, tierNow.capacity - tierNow.sold) : 0;
+      const max = avail > 0 ? Math.min(50, avail) : 1;
+      const qty = Math.min(max, Math.max(1, Number(quantity) || 1));
+      const listTotal = tierNow ? tierNow.price * qty : 0;
       const unitSale = tierNow ? discountedEventUnitPrice(event, tierNow.price, tierNow.name) : 0;
-      const zelleDue = isDiscountedEvent && tierNow ? unitSale * quantity : listTotal;
+      const zelleDue = isDiscountedEvent && tierNow ? unitSale * qty : listTotal;
       const discountPerTicket = tierNow ? tierNow.price - unitSale : 0;
       const notesForAdmin = isDiscountedEvent
         ? `Order ID: ${pendingOrderId}\nZelle payee: ${ZELLE_EMAIL}\nZelle amount due: ${formatCurrency(zelleDue)}\nList: ${formatCurrency(listTotal)} — ${formatCurrency(discountPerTicket)}/ticket discount, no service fee`
@@ -131,7 +134,7 @@ const RequestTicketsPage = () => {
         phone: phone.trim(),
         eventId,
         tierId,
-        quantity,
+        quantity: qty,
         notes: notesForAdmin,
       });
       setPaymentModalPhase('success');
@@ -163,8 +166,9 @@ const RequestTicketsPage = () => {
   const tier = event.ticketTiers?.find((t) => t._id === tierId);
   const tierAvail = tier ? Math.max(0, tier.capacity - tier.sold) : 0;
   const maxQty = tierAvail > 0 ? Math.min(50, tierAvail) : 1;
+  const clampQuantity = (value) => Math.min(maxQty, Math.max(1, value));
+  const quantityNum = clampQuantity(Number(quantity) || 1);
   const discountPerTicket = tier ? eventDiscountPerTicket(event, tier.name) : 0;
-  const tierUnitSale = tier ? discountedEventUnitPrice(event, tier.price, tier.name) : 0;
 
   return (
     <div style={{ background: 'var(--cloud)', minHeight: '100vh', padding: '40px 0 72px' }}>
@@ -227,10 +231,23 @@ const RequestTicketsPage = () => {
             <input
               className="form-input"
               type="number"
+              inputMode="numeric"
               min={1}
               max={maxQty}
               value={quantity}
-              onChange={(e) => setQuantity(Math.min(maxQty, Math.max(1, Number(e.target.value) || 1)))}
+              onChange={(e) => {
+                const raw = e.target.value;
+                if (raw === '') {
+                  setQuantity('');
+                  return;
+                }
+                const digits = raw.replace(/\D/g, '');
+                if (digits === '') return;
+                setQuantity(clampQuantity(parseInt(digits, 10)));
+              }}
+              onBlur={() => {
+                setQuantity((current) => clampQuantity(Number(current) || 1));
+              }}
             />
             {tierAvail > 0 ? (
               <p style={{ margin: '8px 0 0', fontSize: 13, color: 'var(--text-muted)' }}>{tierAvail} ticket{tierAvail === 1 ? '' : 's'} available</p>
@@ -252,8 +269,8 @@ const RequestTicketsPage = () => {
             <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 20, lineHeight: 1.6 }}>
               <p style={{ margin: '0 0 10px' }}>
                 <FaTicket style={{ verticalAlign: 'middle', marginRight: 6 }} />
-                Ticket subtotal: <strong>{formatCurrency(tier.price * quantity)}</strong>
-                {isDiscountedEvent ? ` (${formatCurrency(tier.price)} × ${quantity})` : null}
+                Ticket subtotal: <strong>{formatCurrency(tier.price * quantityNum)}</strong>
+                {isDiscountedEvent ? ` (${formatCurrency(tier.price)} × ${quantityNum})` : null}
               </p>
               {isDiscountedEvent ? (
                 <div
@@ -305,13 +322,13 @@ const RequestTicketsPage = () => {
                   >
                     <span style={{ color: 'var(--text-secondary)', fontWeight: 600, fontSize: 14 }}>Zelle amount due</span>
                     <span style={{ color: 'var(--flame)', fontFamily: 'var(--font-display)', fontSize: 18 }}>
-                      {formatCurrency(Math.max(0, tier.price - discountPerTicket) * quantity)}
+                      {formatCurrency(Math.max(0, tier.price - discountPerTicket) * quantityNum)}
                     </span>
                   </div>
                 </div>
               ) : (
                 <p style={{ margin: 0 }}>
-                  Estimated total: <strong>{formatCurrency(tier.price * quantity)}</strong> (before any discounts)
+                  Estimated total: <strong>{formatCurrency(tier.price * quantityNum)}</strong> (before any discounts)
                 </p>
               )}
             </div>
@@ -405,8 +422,8 @@ const RequestTicketsPage = () => {
                 >
                   {formatCurrency(
                     isDiscountedEvent
-                      ? Math.max(0, tier.price - discountPerTicket) * quantity
-                      : tier.price * quantity,
+                      ? Math.max(0, tier.price - discountPerTicket) * quantityNum
+                      : tier.price * quantityNum,
                   )}
                 </p>
 
