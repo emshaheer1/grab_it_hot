@@ -8,6 +8,49 @@ const Booking = require('../models/Booking');
 const ContactMessage = require('../models/ContactMessage');
 const TicketRequest = require('../models/TicketRequest');
 
+function parseOrderIdFromNotes(notes) {
+  if (!notes || typeof notes !== 'string') return '';
+  const m = notes.match(/Order ID:\s*([^\s\n]+)/i);
+  return m ? m[1].trim() : '';
+}
+
+function parseAmountFromNotes(notes) {
+  if (!notes || typeof notes !== 'string') return '';
+  const m = notes.match(/(?:Zelle amount due|Estimated total):\s*(\$[0-9,]+(?:\.[0-9]{1,2})?)/i);
+  return m ? m[1].trim() : '';
+}
+
+/** Match admin dashboard datetime style for Excel (e.g. Wed, Aug 5, 2026 · 3:15 PM) */
+function formatCsvDateTime(date) {
+  if (!date) return '';
+  try {
+    return new Intl.DateTimeFormat('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    })
+      .format(new Date(date))
+      .replace(',', '')
+      .replace(/ (\d{1,2}:\d{2})/, ' · $1');
+  } catch {
+    return String(date);
+  }
+}
+
+function escapeCsvCell(value) {
+  const s = String(value ?? '');
+  if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+  return s;
+}
+
+function toCsvLine(cells) {
+  return cells.map(escapeCsvCell).join(',');
+}
+
 const restoreCapacityIfNeeded = async (booking) => {
   if (!booking || booking.status !== 'confirmed') return;
   const event = await Event.findById(booking.event);
@@ -136,23 +179,128 @@ exports.getContactMessages = async (req, res, next) => {
 
 exports.getTicketRequests = async (req, res, next) => {
   try {
-    const rows = await TicketRequest.find()
-      .populate('event', 'title date location')
-      .sort({ createdAt: -1 });
-    res.json({ success: true, count: rows.length, data: rows });
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 20));
+    const filter = {};
+
+    if (req.query.eventId) filter.event = req.query.eventId;
+    if (req.query.status === 'new') filter.status = 'new';
+    if (req.query.status === 'reviewed') filter.status = 'reviewed';
+
+    const [rows, total] = await Promise.all([
+      TicketRequest.find(filter)
+        .populate('event', 'title date location')
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit),
+      TicketRequest.countDocuments(filter),
+    ]);
+
+    res.json({
+      success: true,
+      count: rows.length,
+      data: rows,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.max(1, Math.ceil(total / limit)),
+      },
+    });
   } catch (err) {
     next(err);
   }
 };
 
-/** Clears admin notification badge: all non-reviewed ticket requests become reviewed */
+exports.getTicketRequestGroups = async (req, res, next) => {
+  try {
+    const groups = await TicketRequest.aggregate([
+      {
+        $group: {
+          _id: '$event',
+          eventTitle: { $first: '$eventTitle' },
+          total: { $sum: 1 },
+        },
+      },
+      { $sort: { eventTitle: 1 } },
+    ]);
+
+    res.json({
+      success: true,
+      data: groups.map((g) => ({
+        eventId: g._id,
+        eventTitle: g.eventTitle || 'Unknown event',
+        total: g.total,
+      })),
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.exportTicketRequestsCsv = async (req, res, next) => {
+  try {
+    const filter = {};
+    if (req.query.eventId) filter.event = req.query.eventId;
+
+    // Full dataset — no pagination
+    const rows = await TicketRequest.find(filter)
+      .populate('event', 'title date location')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Same fields as the admin ticket-request table (+ Event / Amount for Excel)
+    const headers = [
+      'Received',
+      'Buyer',
+      'Email',
+      'Phone',
+      'Event',
+      'Order ID',
+      'Tier',
+      'Quantity',
+      'Amount',
+      'Status',
+    ];
+
+    const lines = [toCsvLine(headers)];
+    for (const row of rows) {
+      lines.push(
+        toCsvLine([
+          formatCsvDateTime(row.createdAt),
+          row.fullName || '',
+          row.email || '',
+          row.phone || '',
+          row.eventTitle || row.event?.title || '',
+          parseOrderIdFromNotes(row.notes) || '',
+          row.tierName || '',
+          row.quantity ?? '',
+          parseAmountFromNotes(row.notes) || '',
+          row.status || '',
+        ])
+      );
+    }
+
+    const stamp = new Date().toISOString().slice(0, 10);
+    const eventSlug = req.query.eventId ? `event-${String(req.query.eventId).slice(-6)}-` : '';
+    const filename = `ticket-requests-${eventSlug}${stamp}.csv`;
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    // UTF-8 BOM so Excel opens columns correctly
+    res.send(`\uFEFF${lines.join('\r\n')}\r\n`);
+  } catch (err) {
+    next(err);
+  }
+};
+
+/** Clears admin notification badge: all (or one event’s) non-reviewed ticket requests become reviewed */
 exports.markNewTicketRequestsReviewed = async (req, res, next) => {
   try {
     res.set('Cache-Control', 'no-store');
-    const result = await TicketRequest.updateMany(
-      { status: { $ne: 'reviewed' } },
-      { $set: { status: 'reviewed' } }
-    );
+    const eventId = req.query.eventId || req.body?.eventId;
+    const filter = { status: { $ne: 'reviewed' } };
+    if (eventId) filter.event = eventId;
+    const result = await TicketRequest.updateMany(filter, { $set: { status: 'reviewed' } });
     res.json({ success: true, modifiedCount: result.modifiedCount });
   } catch (err) {
     next(err);

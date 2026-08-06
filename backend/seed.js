@@ -10,7 +10,7 @@ const { getAdminEmail, getAdminPassword } = require('./config/adminCredentials')
 
 const events = [
   {
-    title: 'Junooni Tour — Chicago, IL',
+    title: 'Junooni Tour — Chicago',
     description:
       'JUNOONI TOUR — USA TOUR featuring Mustafa Zahid & Ali Azmat. Live at Chicagoland Halal Fest 2026!\n\n' +
       'Saturday, August 8, 2026 at Kane County Fairgrounds, St. Charles, IL. Gates open at 6:30 PM · Concert starts at 7:30 PM (US Central).\n\n' +
@@ -251,31 +251,53 @@ const events = [
 
 const SEED_EVENT_TITLES = events.map((e) => e.title);
 
-async function upsertDemoEvents() {
-  const removed = await Event.deleteMany({ title: { $nin: SEED_EVENT_TITLES } });
-  if (removed.deletedCount > 0) {
-    console.log(`Removed ${removed.deletedCount} event(s) not in seed list (${SEED_EVENT_TITLES.join(' | ')}).`);
-  }
+/** Previous titles → current seed title (keeps the same Event _id on rename). */
+const EVENT_TITLE_ALIASES = {
+  'Junooni Tour — Chicago': [
+    'Junooni Tour — Chicago, IL',
+    'Junooni Tour - Chicago, IL',
+    'Junooni Tour - USA',
+    'Junooni Tour — USA',
+    'Junooni Tour USA',
+    'Junooni Tour -usa',
+    'Junooni Tour - USA Tour',
+  ],
+};
 
+async function upsertDemoEvents() {
+  const TicketRequest = require('./models/TicketRequest');
   let created = 0;
   let updated = 0;
   for (const ev of events) {
-    const existing = await Event.findOne({ title: ev.title }).lean();
+    const aliases = EVENT_TITLE_ALIASES[ev.title] || [];
+    const existing = await Event.findOne({ title: { $in: [ev.title, ...aliases] } }).lean();
     const replacement = { ...ev };
     if (existing) {
       replacement._id = existing._id;
       replacement.createdAt = existing.createdAt;
       updated += 1;
+      // Full document replace so nested `ticketTiers` is not merged with stale tiers
+      await Event.findOneAndReplace({ _id: existing._id }, replacement, {
+        runValidators: true,
+      });
+      if (existing.title !== ev.title) {
+        await TicketRequest.updateMany(
+          { event: existing._id },
+          { $set: { eventTitle: ev.title } }
+        );
+        console.log(`Renamed event "${existing.title}" → "${ev.title}"`);
+      }
     } else {
       created += 1;
+      await Event.create(replacement);
     }
-    // Full document replace so nested `ticketTiers` (e.g. Farhan → one Regular $50) is not merged with stale tiers
-    await Event.findOneAndReplace({ title: ev.title }, replacement, {
-      upsert: true,
-      runValidators: true,
-      setDefaultsOnInsert: true,
-    });
   }
+
+  const removed = await Event.deleteMany({ title: { $nin: SEED_EVENT_TITLES } });
+  if (removed.deletedCount > 0) {
+    console.log(`Removed ${removed.deletedCount} event(s) not in seed list (${SEED_EVENT_TITLES.join(' | ')}).`);
+  }
+
   console.log(`Events: ${created} inserted, ${updated} updated (matched by title).`);
 }
 
