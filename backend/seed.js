@@ -97,7 +97,7 @@ const events = [
     title: 'Junooni Tour - New Jersey',
     description:
       'JUNOONI TOUR featuring Mustafa Zahid & Ali Azmat — live in New Jersey.\n\n' +
-      'Friday, August 14, 2026 at Ritz Theatre & Performing Arts Center, Elizabeth, NJ. Gates open at 8:00 PM · Concert starts at 8:30 PM (US Eastern).\n\n' +
+      'Friday, August 14, 2026 at Lake Chateau Banquets,Woodbridge, NJ. Gates open at 6.30 PM · Concert starts at 7.00 PM (US Eastern).\n\n' +
       'Grab It Hot is proud to list this experience. When you book or request tickets here, you get clear information, careful handling of your details, and a straightforward path to confirmation.\n\n' +
       'Booking & inquiries:\n' +
       '• Arif Khan — (646) 393-6994\n' +
@@ -107,11 +107,11 @@ const events = [
     date: new Date('2026-08-14T20:30:00-04:00'),
     endDate: new Date('2026-08-15T01:00:00-04:00'),
     location: {
-      venue: 'Ritz Theatre & Performing Arts Center',
-      city: 'Elizabeth',
+      venue: 'Lake Chateau Banquets',
+      city: 'Woodbridge',
       state: 'NJ',
-      address: '1148 E Jersey St',
-      zipCode: '07201',
+      address: '1002 US-9,',
+      zipCode: '07095',
     },
     organizer: {
       name: 'The Musik World & MFX Productions',
